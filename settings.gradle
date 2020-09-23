@@ -1,0 +1,4 @@
+rootProject.name = "campsite_tech_challenge"
+
+include("service")
+include("database")

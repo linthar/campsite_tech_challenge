@@ -1,0 +1,98 @@
+plugins {
+    id "io.spring.dependency-management" version "1.0.9.RELEASE"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "jacoco"
+    id 'org.liquibase.gradle' version '2.0.2'
+}
+
+apply plugin: "application"
+apply plugin: "java"
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "io.micronaut:micronaut-bom:$micronautVersion"
+    }
+}
+
+dependencies {
+
+	annotationProcessor "io.micronaut:micronaut-inject-java"
+	annotationProcessor "io.micronaut.data:micronaut-data-processor:$micronautDataVersion"
+
+	compile "io.micronaut:micronaut-inject-java"
+	compile "io.micronaut:micronaut-runtime"
+	runtime "io.micronaut:micronaut-graal"
+	compile "org.projectlombok:lombok:$lombokVersion"
+	runtime "ch.qos.logback:logback-classic:$logbackVersion"
+	
+    // HTTP REST
+    compile "io.micronaut:micronaut-http-client"
+    compile "io.micronaut:micronaut-http-server-netty"
+
+    // DB
+    compile "mysql:mysql-connector-java:$mysqlVersion"
+    runtime "io.micronaut.configuration:micronaut-jdbc-hikari"
+    compile "com.google.cloud.sql:mysql-socket-factory-connector-j-8:$mysqlSocketFactoryConnectorVersion"
+	compile "jakarta.persistence:jakarta.persistence-api:$jakartaPersistenceApiVersion"
+	compile "io.micronaut.data:micronaut-data-jdbc:$micronautDataVersion"
+
+
+    // Open API
+    annotationProcessor "io.micronaut.configuration:micronaut-openapi:$micronautOpenapiVersion"
+    compile "io.swagger.core.v3:swagger-annotations"
+
+	// TEST
+	testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+	testCompile "io.micronaut.test:micronaut-test-core"
+	testCompile "io.micronaut.test:micronaut-test-junit5"
+	testCompile "io.micronaut:micronaut-inject-java-test"
+	testCompile "org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion"
+	testCompile "org.mockito:mockito-junit-jupiter:$mockitoJunitJupiterVersion"
+	testRuntime "com.h2database:h2"
+
+    // TEST DB setup --> Liquibase
+   //TODO testCompile ??    
+    compile "io.micronaut.configuration:micronaut-liquibase"
+    liquibaseRuntime "org.liquibase:liquibase-core:$liquibaseVersion"
+    liquibaseRuntime "mysql:mysql-connector-java:$mysqlVersion"
+    
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+mainClassName = "com.upgrade.campsite.Main"
+
+
+// TEST Coverage report
+jacoco {
+    toolVersion = "0.8.4"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+def databaseDir = project(':database').projectDir.toString() + '/src/main/resources'
+
+processResources {
+    println 'Copying resources from database from ' + databaseDir
+    from databaseDir
+}

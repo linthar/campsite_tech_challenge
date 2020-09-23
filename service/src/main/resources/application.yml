@@ -1,0 +1,62 @@
+micronaut:
+  application:
+    name: campsite
+
+  server:
+    host: ${SERVER_HOST:0.0.0.0}
+    port: ${SERVER_PORT:8080}
+    cors:
+      enabled: true
+
+  security:
+    enabled: false
+
+    intercept-url-map:
+      - pattern: /swagger/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: /swagger-ui/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+
+  health:
+    monitor:
+      enabled: false
+
+endpoints:
+  health:
+    enabled: true
+    sensitive: false
+    jdbc:
+      enabled: true
+    disk-space:
+      enabled: false
+    discovery-client:
+      enabled: false
+    details-visible: ANONYMOUS
+
+jackson:
+  serialization:
+    WRITE_DATES_AS_TIMESTAMPS: false
+    indentOutput: true
+
+datasources:
+  default:
+    url: ${JDBC_URL}
+    username: ${JDBC_USER}
+    password: ${JDBC_PASSWORD}
+    driverClassName: ${JDBC_DRIVER:com.mysql.cj.jdbc.Driver}
+    schema-generate: NONE
+    maximum-pool-size: ${MAX_DB_POOL_SIZE}
+
+db:
+  schema:
+    version: '1.0'
+
+
+logger:
+  levels:
+    root: ${LOGGING_LEVEL:INFO}
+
