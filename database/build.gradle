@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id 'org.liquibase.gradle' version '2.0.2'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Liquibase
+    liquibaseRuntime "org.liquibase:liquibase-core:$liquibaseVersion"
+    liquibaseRuntime "mysql:mysql-connector-java:$mysqlVersion"
+    liquibaseRuntime "com.google.cloud.sql:mysql-socket-factory-connector-j-8:$mysqlSocketFactoryConnectorVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion"
+}
+
+// Liquibase
+def changeLog = "src/main/resources/db/changelog.xml"
+
+task liquibase {
+    liquibase {
+        activities {
+            main {
+                changeLogFile changeLog
+                url System.getenv('JDBC_URL') 
+                username System.getenv('JDBC_USER') 
+                password System.getenv('JDBC_PASSWORD') 
+            }
+        }
+    }
+}
+
