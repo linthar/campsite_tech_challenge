@@ -1,31 +1,20 @@
 micronaut:
   application:
-    name: historia-clinica-socio
+    name: campsite
 
   server:
     host: ${SERVER_HOST:0.0.0.0}
-    port: ${SERVER_PORT:8080}
+    port: ${SERVER_PORT:18989}
     cors:
       enabled: true
 
   security:
-    enabled: true
-    token:
-      roles-name: groups
-      basicAuth:
-        enabled: false
-      jwt:
-        enabled: true
-#   		signatures:
-#   			secret:
-
-tracing:
-  jaeger:
     enabled: false
 
 jackson:
   serialization:
     WRITE_DATES_AS_TIMESTAMPS: false
+    indentOutput: true
 
 datasources:
   default:
@@ -35,14 +24,6 @@ datasources:
     password: ''
     schema-generate: NONE
     dialect: H2
-
-jpa:
-  default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: none
-        show_sql: true
 
 liquibase:
   datasources:

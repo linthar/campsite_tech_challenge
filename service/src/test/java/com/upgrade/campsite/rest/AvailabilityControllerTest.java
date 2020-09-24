@@ -1,5 +1,7 @@
 package com.upgrade.campsite.rest;
 
+import com.upgrade.campsite.dto.DateAvailavility;
+import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -8,18 +10,16 @@ import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.uri.UriBuilder;
 import io.micronaut.test.annotation.MicronautTest;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 @MicronautTest
 class AvailabilityControllerTest {
 
@@ -29,34 +29,37 @@ class AvailabilityControllerTest {
     @Client("/")
     RxHttpClient client;
 
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
+//    @BeforeEach
+//    void setUp() {
+//    }
+//
+//    @AfterEach
+//    void tearDown() {
+//    }
 
     @Test
     public void testDefaultDateResponse() throws Exception {
         URI uri = UriBuilder.of(ENDPOINT_URL).build();
         MutableHttpRequest request = HttpRequest.GET(uri);
-        HttpResponse<String> response = client.toBlocking().exchange(request, String.class);
+        HttpResponse<List<DateAvailavility>> httpResponse = client.toBlocking().exchange(request, Argument.of(List.class, DateAvailavility.class));
 
-        assertEquals(HttpStatus.OK, response.getStatus(), "response status is wrong");
-
-        Optional<String> oBody = response.getBody();
+        assertEquals(HttpStatus.OK, httpResponse.getStatus(), "response status is wrong");
+        Optional<List<DateAvailavility>> oBody = httpResponse.getBody();
         assertTrue(oBody.isPresent(), "body is empty");
 
-        // verificar si today sigue siendo == LocalDate.now()
+
+        //first mock implementation returns 10 elements
+        List<DateAvailavility> responseList = oBody.get();
+        assertEquals(10, responseList.size(), "response list size is wrong");
+
+        // checking each date in list
         LocalDate today = LocalDate.now();
-        LocalDate from = today.plusDays(1);
-        LocalDate to = today.plusMonths(1);
+        for (int i = 0; i < 10; i++) {
+            DateAvailavility dateAvailavility = responseList.get(i);
+            assertEquals(today.plusDays(i),dateAvailavility.getDate(),  "index " + i + ":  Date value is wrong" );
+            assertEquals((i % 2 == 0),dateAvailavility.isVacant(), "index " + i + ": Vacant value is wrong" );
+        }
 
-        String expected = "availability :__" + from + " __to__ " + to;
-        assertEquals(expected, oBody.get(), "response body is wrong");
     }
-
 
 }

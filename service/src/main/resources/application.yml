@@ -21,10 +21,6 @@ micronaut:
         access:
           - isAnonymous()
 
-  health:
-    monitor:
-      enabled: false
-
 endpoints:
   health:
     enabled: true
@@ -47,7 +43,7 @@ datasources:
     url: ${JDBC_URL}
     username: ${JDBC_USER}
     password: ${JDBC_PASSWORD}
-    driverClassName: ${JDBC_DRIVER:com.mysql.cj.jdbc.Driver}
+    driverClassName: ${JDBC_DRIVER}
     schema-generate: NONE
     maximum-pool-size: ${MAX_DB_POOL_SIZE}
 
