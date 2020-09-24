@@ -3,14 +3,22 @@
 see /docs for specifications
 
 
-# Service Setup
+# Test Coverage
+
+````
+./test.sh
+````
+
+
+
+
+# Service Execution
 
 ## MySQL setup
  First you have to start a MySQL Docker image in you host, to do that, execute:
  this command starts a new MySQL instance on localhost:30306 with admin user/pass: root/root_pass
-
 ```
-./setup_db.sh
+./setup.sh
 ```
 
 
@@ -25,7 +33,8 @@ docker start mysqlCampsite
 
 
 
-# Running the service
+
+## Running the service
 
 ````
 ./run.sh
@@ -40,25 +49,11 @@ curl -I -s -L 'http://0.0.0.0:8080/health' | grep "HTTP/1.1"
 ````
 
 
+### SWAGGER doc:
 
-
-# Testing the service
-
-````
-./test.sh
-````
+http://localhost:8080/swagger/views/swagger-ui/
 
 
 
-## Endpoints:
--POST   /reserve
--DELETE /reserve/{reservation_id}
--PATCH  /reserve/{reservation_id}
--GET    /availability
 
 
-
-## Ejemplos cURL
-
-
-### 

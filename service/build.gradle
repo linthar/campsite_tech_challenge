@@ -62,7 +62,16 @@ dependencies {
     //TODO testCompile  "io.micronaut.configuration:micronaut-liquibase" ??
     liquibaseRuntime "org.liquibase:liquibase-core:$liquibaseVersion"
     liquibaseRuntime "mysql:mysql-connector-java:$mysqlVersion"
-    
+
+
+    // Open API
+    annotationProcessor "io.micronaut.configuration:micronaut-openapi:$micronautOpenapiVersion"
+    implementation("io.swagger.core.v3:swagger-annotations")
+}
+
+tasks.withType(JavaCompile) {
+    options.fork = true
+    options.forkOptions.jvmArgs << '-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop'
 }
 
 shadowJar {
@@ -73,7 +82,7 @@ test {
     useJUnitPlatform()
 }
 
-mainClassName = "com.upgrade.campsite.Main"
+mainClassName = "com.upgrade.campsite.Application"
 
 
 // TEST Coverage report

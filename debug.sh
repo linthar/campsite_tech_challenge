@@ -16,6 +16,7 @@ if [ "$1" != "--fast" ]; then
 fi
 
 
-# starts the jar service in debug mode 
+docker start mysqlCampsite
 
+# starts the jar service in debug mode
 java -jar -Dmicronaut.environments=dev -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=6010 ./service/build/libs/service-all.jar
