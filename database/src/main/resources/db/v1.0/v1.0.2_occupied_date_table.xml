@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd" logicalFilePath="campsite-schema">
+
+    <property name="uuid_type" value="uuid" dbms="postgresql"/>
+    <property name="uuid_function" value="uuid_generate_v4()" dbms="postgresql"/>
+
+    <property name="uuid_type" value="UUID" dbms="h2"/>
+    <property name="uuid_function" value="random_uuid()" dbms="h2"/>
+
+    <property name="uuid_type" value="CHAR(36)" dbms="mysql"/>
+    <property name="uuid_function" value="(UUID())" dbms="mysql"/>
+
+    <changeSet id="v1.0.2_taken_table" author="fgarcia">
+        <createTable tableName="occupied_date"
+                     remarks="campsite taken dates registry">
+
+            <column name="date" type="date">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="reservation_id" type="${uuid_type}">
+                <constraints nullable="false"/>
+            </column>
+            <!-- needed for fraud check???
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            -->
+        </createTable>
+
+        <!-- needed for fraud check???
+        <createIndex indexName="idx__occupied_date_reservation_id"
+                     tableName="occupied_date"
+                     unique="false">
+            <column name="reservation_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx__occupied_date_email"
+                     tableName="occupied_date"
+                     unique="false">
+            <column name="email"/>
+        </createIndex>
+        -->
+    </changeSet>
+</databaseChangeLog>

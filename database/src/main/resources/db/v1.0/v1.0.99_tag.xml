@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd"
         logicalFilePath="tag-1.0">
 
-    <changeSet id="01" author="fgarcia">
+    <changeSet id="v1.0.99_tag" author="fgarcia">
         <tagDatabase tag="1.0"/>
     </changeSet>
 

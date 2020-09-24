@@ -14,7 +14,7 @@
     <property name="uuid_type" value="CHAR(36)" dbms="mysql"/>
     <property name="uuid_function" value="(UUID())" dbms="mysql"/>
 
-    <changeSet id="01" author="fgarcia">
+    <changeSet id="v1.0.1_reservation_table" author="fgarcia">
         <createTable tableName="reservation"
                      remarks="campsite reservation registry">
             <column name="id" type="${uuid_type}">
@@ -25,6 +25,12 @@
             </column>
             <column name="fullname" type="varchar(255)">
                 <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="arrival_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="departure_date" type="date">
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
