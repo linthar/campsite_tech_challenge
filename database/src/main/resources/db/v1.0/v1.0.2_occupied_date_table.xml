@@ -31,14 +31,15 @@
             -->
         </createTable>
 
-        <!-- needed for fraud check???
+
         <createIndex indexName="idx__occupied_date_reservation_id"
                      tableName="occupied_date"
                      unique="false">
             <column name="reservation_id"/>
         </createIndex>
 
-        <createIndex indexName="idx__occupied_date_email"
+        <!-- needed for fraud check???
+         <createIndex indexName="idx__occupied_date_email"
                      tableName="occupied_date"
                      unique="false">
             <column name="email"/>
