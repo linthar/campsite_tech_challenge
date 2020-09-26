@@ -1,6 +1,5 @@
 package com.upgrade.campsite.service;
 
-import com.upgrade.campsite.dto.ReservationRequest;
 import com.upgrade.campsite.exception.ServiceException;
 import com.upgrade.campsite.model.Reservation;
 import com.upgrade.campsite.repository.ReservationRepository;
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -36,7 +34,7 @@ public class ReservationService {
     public Reservation create(@NotNull @Email String email, @NotBlank String fullname,
                               @NotNull LocalDate arrival, @NotNull LocalDate departure) {
 
-        validateDates(arrival, departure);
+        validateReservationDates(arrival, departure);
 
         if (occupiedDateService.existAnyBetweenDates(arrival, departure)) {
             throw new ServiceException("provided dates period is no free, check please check availability for details");
@@ -93,7 +91,7 @@ public class ReservationService {
     // so rollback will rollback parent too
     @Transactional(Transactional.TxType.MANDATORY)
     private void updateDates(Reservation entity, LocalDate newArrival, LocalDate newDeparture ) {
-        validateDates(newArrival, newDeparture);
+        validateReservationDates(newArrival, newDeparture);
 
         //TODO first impl (quick and dirty )
         // delete old reservation occupied dates
@@ -122,7 +120,7 @@ public class ReservationService {
      * @param arrivalDate   reservation arrival date
      * @param departureDate reservation departure date
      */
-    private void validateDates(LocalDate arrivalDate, LocalDate departureDate) {
+    private void validateReservationDates(LocalDate arrivalDate, LocalDate departureDate) {
         LOG.debug("checking reservation dates [arrivalDate {} - departureDate {}]", arrivalDate, departureDate);
 
 

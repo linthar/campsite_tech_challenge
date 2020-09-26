@@ -2,6 +2,7 @@ package com.upgrade.campsite.service;
 
 import com.upgrade.campsite.exception.ServiceException;
 import com.upgrade.campsite.model.OccupiedDate;
+import com.upgrade.campsite.utils.DatesValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +25,12 @@ public class AvailabilityService {
     @Inject
     private OccupiedDateService occupiedDateService;
 
+    @Inject
+    private DatesValidator datesValidator;
+
     public Map<LocalDate, String> getAvailability(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
         LOG.debug("searching getAvailability for [fromDate: {} - toDate: {}]", fromDate, toDate);
-        validateDates(fromDate, toDate);
+        datesValidator.validateAvailabilityDates(fromDate, toDate);
 
         LOG.debug("finding occupied dates into DB "); //in the provided date range
         List<OccupiedDate> occupiedDates = occupiedDateService.findAllBetweenDates(fromDate, toDate);
@@ -67,41 +71,6 @@ public class AvailabilityService {
             template.put(date, NOT_OCCUPIED_DATE);
         }
         return template;
-    }
-
-    /**
-     * Check if dates are valid
-     * fromDate must be lower or equals to toDate
-     * fromDate must be higher than today
-     * toDate must be lower or equals to  [today + 1 month]
-     *
-     * @param fromDate from date to check
-     * @param toDate   to date to check
-     */
-    protected void validateDates(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
-        LOG.debug("checking date range for availability report [fromDate {} - toDate {}]", fromDate, toDate);
-
-        // vaidate if from & to range is Ok
-        if (toDate.isBefore(fromDate)) {
-            throw new ServiceException("Bad parameters: fromDate must be before toDate. Can't return availability from: " + fromDate + " to: " + toDate);
-        }
-
-        //dates range check
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
-        // fromDate must be at least tomorrow or ahead
-        if (fromDate.isBefore(tomorrow)) {
-            throw new ServiceException("Invalid parameter fromDate '" + fromDate + "'. Must be at least tomorrow or ahead");
-
-        }
-
-        LocalDate oneMonthAhead = today.plusMonths(1);
-        // toDate must be at most one moth ahead from now
-        if (toDate.isAfter(oneMonthAhead)) {
-            throw new ServiceException("Invalid parameter toDate '" + toDate + "'. Must be at most one moth ahead from now");
-        }
-
-        LOG.debug("date range is valid! [fromDate {} - toDate {}]", fromDate, toDate);
     }
 
 

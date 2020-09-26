@@ -5,7 +5,7 @@ import com.upgrade.campsite.dto.ReservationRequest;
 import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ReservationUtils {
+public class ReservationTestUtils {
 
     static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
