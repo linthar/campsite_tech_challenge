@@ -1,7 +1,7 @@
 package com.upgrade.campsite.rest;
 
 import com.upgrade.campsite.service.OccupiedDateService;
-import com.upgrade.campsite.utils.AvailavilityUtils;
+import com.upgrade.campsite.utils.AvailavilityConstants;
 import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @MicronautTest
 class AvailabilityControllerTest {
 
-    // this class is an End-to-End test case suite (RESTController to DB)
+    // this class is an End-to-End test case suite (from HttpClient to DB)
     // The idea is to detect any layer interoperation problem (rest/service/repository/DB)
     // and also verify that Rest API response is ok
 
@@ -181,9 +181,9 @@ class AvailabilityControllerTest {
 
             // checking each date availability value
             if (TAKEN_DATES.contains(date)) {
-                assertEquals(AvailavilityUtils.OCCUPIED_DATE, dateAvailavilty, date + " availavilty value is wrong");
+                assertEquals(AvailavilityConstants.OCCUPIED_DATE, dateAvailavilty, date + " availavilty value is wrong");
             } else {
-                assertEquals(AvailavilityUtils.NOT_OCCUPIED_DATE, dateAvailavilty, date + " availavilty value is wrong");
+                assertEquals(AvailavilityConstants.NOT_OCCUPIED_DATE, dateAvailavilty, date + " availavilty value is wrong");
             }
         }
     }

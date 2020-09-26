@@ -26,7 +26,7 @@ public class AvailabilityController {
     private AvailabilityService service;
 
     @Get()
-    public Map<LocalDate, String> availabilityTree(@QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate fromDate,
+    public Map<LocalDate, String> availability(@QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate fromDate,
                                                    @QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate toDate) {
 
         //Endpoint Default values
