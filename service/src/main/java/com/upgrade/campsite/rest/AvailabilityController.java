@@ -29,8 +29,6 @@ public class AvailabilityController {
     public Map<LocalDate, String> availabilityTree(@QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate fromDate,
                                                    @QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate toDate) {
 
-        LOG.debug("serving /availability for [fromDate: {} - toDate: {}]", fromDate, toDate );
-
         //Endpoint Default values
         LocalDate today = LocalDate.now();
         if (fromDate == null) {
