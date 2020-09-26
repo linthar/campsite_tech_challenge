@@ -2,6 +2,11 @@
 
 see /docs for specifications
 
+Requeriments
+
+- docker
+- jdk 11
+
 
 # Test Coverage
 
