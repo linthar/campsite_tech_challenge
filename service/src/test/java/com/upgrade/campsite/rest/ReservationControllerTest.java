@@ -1,9 +1,7 @@
 package com.upgrade.campsite.rest;
 
 import com.upgrade.campsite.dto.CreateReservation;
-import com.upgrade.campsite.dto.DateAvailavility;
 import com.upgrade.campsite.model.Reservation;
-import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -17,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Inject;
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,15 +29,14 @@ class ReservationControllerTest {
     final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
 
-
     @Inject
     @Client("/")
     RxHttpClient client;
 
     private CreateReservation getCreateReservation() {
         CreateReservation createReservation = new CreateReservation();
-        createReservation.setFullname("fullname_"+RANDOM.nextInt(1000));
-        createReservation.setEmail("Email_"+RANDOM.nextInt(1000));
+        createReservation.setFullname("fullname_" + RANDOM.nextInt(1000));
+        createReservation.setEmail("Email_" + RANDOM.nextInt(1000));
         LocalDate today = LocalDate.now();
         createReservation.setArrivalDate(today.plusDays(1));
         createReservation.setDepartureDate(today.plusDays(2));

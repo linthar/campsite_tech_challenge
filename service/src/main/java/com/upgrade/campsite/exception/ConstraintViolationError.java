@@ -1,4 +1,4 @@
-package com.upgrade.campsite.error;
+package com.upgrade.campsite.exception;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +11,7 @@ public class ConstraintViolationError {
     private Map<String, List<String>> details;
 
     public ConstraintViolationError(Map<String, List<String>> errorDetails) {
-        this("100001", "Request Body is invalid",errorDetails);
+        this("100001", "Request Body is invalid", errorDetails);
     }
 
     public ConstraintViolationError(String code, String message, Map<String, List<String>> errorDetails) {

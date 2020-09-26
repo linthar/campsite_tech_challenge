@@ -51,5 +51,6 @@ db:
 
 logger:
   levels:
-    root: ${LOGGING_LEVEL:INFO}
-
+    root: ${ROOT_LOGGING_LEVEL:INFO}
+    com:
+      upgrade: ${UPG_LOGGING_LEVEL:INFO}

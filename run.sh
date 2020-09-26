@@ -1,6 +1,7 @@
 #!/bin/bash
 export SERVER_PORT=8080
-export LOGGING_LEVEL=DEBUG
+export ROOT_LOGGING_LEVEL=INFO
+export UPG_LOGGING_LEVEL=DEBUG
 
 export JDBC_USER=campsite_user
 export JDBC_PASSWORD=campsite_pass

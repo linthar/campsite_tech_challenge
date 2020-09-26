@@ -1,6 +1,6 @@
-package com.upgrade.campsite.error.handler;
+package com.upgrade.campsite.exception.handler;
 
-import com.upgrade.campsite.error.ConstraintViolationError;
+import com.upgrade.campsite.exception.ConstraintViolationError;
 import io.micronaut.context.annotation.Replaces;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.HttpRequest;
@@ -24,7 +24,7 @@ public class ConstraintViolationsExceptionHandler implements ExceptionHandler<Co
 
     @Override
     public HttpResponse<ConstraintViolationError> handle(HttpRequest request, ConstraintViolationException exception) {
-        LOG.info(getLogMessage(exception), exception);
+        LOG.error(getLogMessage(exception), exception);
         return HttpResponse.badRequest(new ConstraintViolationError(
                 getMessages(exception)
         ));
@@ -32,6 +32,7 @@ public class ConstraintViolationsExceptionHandler implements ExceptionHandler<Co
 
     private Map<String, List<String>> getMessages(ConstraintViolationException exception) {
         Map<String, List<String>> result = new HashMap<>();
+
         exception.getConstraintViolations().forEach(constraintViolation -> {
             final String jsonPath = getJSONPath(constraintViolation.getPropertyPath());
             if (result.containsKey(jsonPath)) {

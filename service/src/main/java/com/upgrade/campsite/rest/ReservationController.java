@@ -5,6 +5,8 @@ import com.upgrade.campsite.dto.CreateReservation;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import io.micronaut.validation.Validated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -16,17 +18,17 @@ import java.util.UUID;
 @Validated
 public class ReservationController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ReservationController.class);
 
     @Post
     public Optional<Reservation> create(@Body @Valid CreateReservation reservation) {
-
         return getReservationMock(UUID.randomUUID(), reservation);
     }
 
 
     @Get("/{id}")
-    public Optional<Reservation> get(@PathVariable(value = "id") @NotNull String id) {
-        return geMock(UUID.fromString(id));
+    public Optional<Reservation> get(@PathVariable(value = "id") @NotNull UUID id) {
+        return geMock(id);
     }
 
     @Patch("/{id}")
@@ -36,7 +38,7 @@ public class ReservationController {
 
     @Delete("/{id}")
     @Status(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable(value = "id") @NotNull String id) {
+    public void delete(@PathVariable(value = "id") @NotNull UUID id) {
     }
 
 

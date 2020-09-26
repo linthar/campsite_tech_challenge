@@ -24,14 +24,14 @@ public class OccupiedDate {
 
     @Column
     @NotNull
-    private String email;
+    private UUID reservationId;
 
     public OccupiedDate() {
     }
 
-    public OccupiedDate(LocalDate date, @NotNull String email) {
+    public OccupiedDate(@NotNull LocalDate date, @NotNull UUID reservationId) {
         this.date = date;
-        this.email = email;
+        this.reservationId = reservationId;
     }
 
     public LocalDate getDate() {
@@ -42,11 +42,11 @@ public class OccupiedDate {
         this.date = date;
     }
 
-    public String getEmail() {
-        return email;
+    public UUID getReservationId() {
+        return reservationId;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setReservationId(UUID reservationId) {
+        this.reservationId = reservationId;
     }
 }

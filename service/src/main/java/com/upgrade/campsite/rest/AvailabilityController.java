@@ -1,44 +1,50 @@
 package com.upgrade.campsite.rest;
 
-import com.upgrade.campsite.dto.DateAvailavility;
+import com.upgrade.campsite.service.AvailabilityService;
 import io.micronaut.core.convert.format.Format;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.validation.Validated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Controller("/availability")
 @Validated
 public class AvailabilityController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AvailabilityController.class);
+
+    @Inject
+    private AvailabilityService service;
+
     @Get()
-    public List<DateAvailavility> availability(@QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate from,
-                                               @QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate to) {
+    public Map<LocalDate, String> availabilityTree(@QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate fromDate,
+                                                   @QueryValue @Format("yyyy-MM-dd") @Nullable LocalDate toDate) {
 
+        LOG.debug("serving /availability for [fromDate: {} - toDate: {}]", fromDate, toDate );
 
-        // first mock
-        // verificar si today sigue siendo == LocalDate.now()
+        //Endpoint Default values
         LocalDate today = LocalDate.now();
-        if (from == null) {
-            from = today.plusDays(1);
+        if (fromDate == null) {
+            fromDate = today.plusDays(1);
+            LOG.debug("setting fromDate as default value: {}", fromDate );
+        }
+        if (toDate == null) {
+            toDate = today.plusMonths(1);
+            LOG.debug("setting toDate as default value: {}", toDate);
         }
 
-        if (to == null) {
-            to = today.plusMonths(1);
-        }
-
-        //response Mock
-        List<DateAvailavility> responseMock = new ArrayList<DateAvailavility>(10);
-        for (int i = 0; i < 10 ; i++) {
-            responseMock.add(new DateAvailavility(today.plusDays(i), (i % 2 == 0)));
-        }
-        return responseMock;
+        return service.getAvailability(fromDate, toDate);
     }
+
 
 
 }

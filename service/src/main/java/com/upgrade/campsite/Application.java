@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
+import java.util.TimeZone;
+
 
 @OpenAPIDefinition(
         info = @Info(
@@ -17,6 +19,8 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 )
 public class Application {
     public static void main(String[] args) {
+        // MySQL dates are stored using UTC tz
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Micronaut.run(args);
     }
 }
