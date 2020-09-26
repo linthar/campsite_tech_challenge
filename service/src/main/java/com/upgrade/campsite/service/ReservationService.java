@@ -34,14 +34,14 @@ public class ReservationService {
     private ReservationRepository repository;
 
     public Reservation create(@NotNull @Email String email, @NotBlank String fullname,
-                                        @NotNull LocalDate arrival, @NotNull LocalDate departure) {
-         validateDates(arrival, departure);
+                              @NotNull LocalDate arrival, @NotNull LocalDate departure) {
+
+        validateDates(arrival, departure);
 
         if (occupiedDateService.existAnyBetweenDates(arrival, departure)) {
             throw new ServiceException("provided dates period is no free, check please check availability for details");
         }
 
-        List<LocalDate> reservationDates = createDatesBetweenList(arrival, departure);
 
         Reservation entity = new Reservation();
         UUID reservationId = UUID.randomUUID();
@@ -51,26 +51,7 @@ public class ReservationService {
         entity.setArrivalDate(arrival);
         entity.setDepartureDate(departure);
 
-        repository.save(entity);
-        occupiedDateService.saveAll(reservationId, reservationDates);
-        return entity;
-    }
-
-    /**
-     * generates a list containing each date
-     *
-     * @param start
-     * @param end
-     * @return
-     */
-    private List<LocalDate> createDatesBetweenList(LocalDate start, LocalDate end) {
-        List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
-                .limit(ChronoUnit.DAYS.between(start, end) + 1)
-                .collect(Collectors.toList());
-
-        LOG.debug("reservation dates are {}", dates);
-        return dates;
-
+        return saveReservationAndOccupiedDates(entity);
     }
 
 
@@ -78,33 +59,57 @@ public class ReservationService {
         return repository.findById(id);
     }
 
-    public Optional<Reservation> update(@NotNull UUID id, @NotNull @Valid ReservationRequest reservation) {
-        return getReservationMock(id, reservation);
+    public Optional<Reservation> update(@NotNull UUID id, @NotNull @Email String newEmail, @NotBlank String newFullname,
+                                        @NotNull LocalDate newArrival, @NotNull LocalDate newDeparture) {
+
+        Optional<Reservation> oEntity = repository.findById(id);
+        if (oEntity.isEmpty()) {
+            // 404
+            return oEntity;
+        }
+
+        Reservation entity = oEntity.get();
+        entity.setEmail(newEmail);
+        entity.setFullname(newFullname);
+
+        if (!entity.getArrivalDate().equals(newArrival) || !entity.getDepartureDate().equals(newDeparture)) {
+            updateDates(entity, newArrival, newDeparture);
+        }
+
+        return Optional.of(saveReservationAndOccupiedDates(entity));
     }
+
+    // This method trx must be attached to parent trx
+    // so rollback will rollback parent too
+    @Transactional(Transactional.TxType.MANDATORY)
+    private Reservation saveReservationAndOccupiedDates(Reservation entity) {
+        repository.save(entity);
+        List<LocalDate> reservationDates = createDatesBetweenList(entity.getArrivalDate(), entity.getDepartureDate());
+        occupiedDateService.saveAll(entity.getId(), reservationDates);
+        return entity;
+    }
+
+    // This method trx must be attached to parent trx
+    // so rollback will rollback parent too
+    @Transactional(Transactional.TxType.MANDATORY)
+    private void updateDates(Reservation entity, LocalDate newArrival, LocalDate newDeparture ) {
+        validateDates(newArrival, newDeparture);
+
+        //TODO first impl (quick and dirty )
+        // delete old reservation occupied dates
+        // because will fail for existAnyBetweenDates check... but could be same reservation that should be
+        occupiedDateService.deleteAllForReservationID(entity.getId());
+        //and check if dates are available
+        if (occupiedDateService.existAnyBetweenDates(newArrival, newDeparture)) {
+            throw new ServiceException("provided dates period is no free, check please check availability for details");
+        }
+
+    }
+
 
     public void delete(@NotNull UUID id) {
-    }
-
-
-    private Optional<Reservation> getReservationMock(UUID id, ReservationRequest reservationRequest) {
-        Reservation r = new Reservation();
-        r.setId(id);
-        r.setEmail(reservationRequest.getEmail());
-        r.setFullname(reservationRequest.getFullname());
-        r.setArrivalDate(reservationRequest.getArrivalDate());
-        r.setDepartureDate(reservationRequest.getDepartureDate());
-        return Optional.of(r);
-    }
-
-    private Optional<Reservation> geMock(@NotNull UUID id) {
-        Reservation r = new Reservation();
-        r.setId(id);
-        r.setEmail("aa@bb.com");
-        r.setFullname("John Smith");
-        LocalDate today = LocalDate.now();
-        r.setArrivalDate(today.plusDays(1));
-        r.setDepartureDate(today.plusDays(2));
-        return Optional.of(r);
+        occupiedDateService.deleteAllForReservationID(id);
+        repository.deleteById(id);
     }
 
 
@@ -128,22 +133,39 @@ public class ReservationService {
 
         long stayDays = ChronoUnit.DAYS.between(arrivalDate, departureDate) + 1;
         if (stayDays > 3) {
-            throw new ServiceException("You can stay up to 3 days");
+            throw new ServiceException("The campsite can be reserved for max 3 days");
         }
 
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
 
         if (arrivalDate.isBefore(tomorrow)) {
-            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance.");
+            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance");
         }
 
         LocalDate nextMonthDate = today.plusMonths(1);
         if (departureDate.isAfter(nextMonthDate)) {
-            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance.");
+            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance");
         }
 
         LOG.debug("checking reservation dates are valid! [arrivalDate {} - departureDate {}]", arrivalDate, departureDate);
     }
+
+    /**
+     * generates a list containing each date
+     *
+     * @param start
+     * @param end
+     * @return
+     */
+    protected List<LocalDate> createDatesBetweenList(LocalDate start, LocalDate end) {
+        List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(start, end) + 1)
+                .collect(Collectors.toList());
+
+        LOG.debug("reservation dates are {}", dates);
+        return dates;
+    }
+
 
 }

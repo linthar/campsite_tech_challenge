@@ -43,6 +43,7 @@ public class OccupiedDateService {
 
 
     // must be attached to save reservation transaction in order to keep consistent the DB
+    // so rollback will rollback parent too
     @Transactional(MANDATORY)
     public void saveAll(UUID reservationId, List<LocalDate> dates) {
         for (LocalDate d : dates) {
@@ -51,6 +52,7 @@ public class OccupiedDateService {
     }
 
     // must be attached to save reservation transaction in order to keep consistent the DB
+    // so rollback will rollback parent too
     @Transactional(MANDATORY)
     public void deleteAllForReservationID(UUID reservationId) {
         repository.deleteByReservationID(reservationId);

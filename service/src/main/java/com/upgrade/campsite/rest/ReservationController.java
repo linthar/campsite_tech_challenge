@@ -30,7 +30,6 @@ public class ReservationController {
                 reservationRequest.getArrivalDate(), reservationRequest.getDepartureDate());
     }
 
-
     @Get("/{id}")
     public Optional<Reservation> get(@PathVariable(value = "id") @NotNull UUID id) {
         return service.findByID(id);
@@ -39,7 +38,7 @@ public class ReservationController {
 
     @Patch("/{id}")
     public Optional<Reservation> update(@PathVariable(value = "id") @NotNull UUID id, @Body @Valid ReservationRequest reservation) {
-        return service.update(id, reservation);
+        return service.update(id, reservation.getEmail(), reservation.getFullname(), reservation.getArrivalDate(), reservation.getDepartureDate());
     }
 
     @Delete("/{id}")

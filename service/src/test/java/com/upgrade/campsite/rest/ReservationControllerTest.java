@@ -67,45 +67,6 @@ class ReservationControllerTest {
 
 
 
-//    private ReservationRequest getCreateReservation() {
-//        ReservationRequest reservationRequest = new ReservationRequest();
-//        reservationRequest.setFullname("fullname_" + RANDOM.nextInt(1000));
-//        reservationRequest.setEmail("Email_" + RANDOM.nextInt(1000) + "@a.com");
-//        LocalDate today = LocalDate.now();
-//        reservationRequest.setArrivalDate(today.plusDays(1));
-//        reservationRequest.setDepartureDate(today.plusDays(2));
-//        return reservationRequest;
-//    }
-
-
-//    @Test
-//    void get() {
-//        UUID id = UUID.randomUUID();
-//        String email = "aa@bb.com";
-//        String fullname = "John Smith";
-//        LocalDate today = LocalDate.now();
-//        LocalDate arrivalDate = today.plusDays(1);
-//        LocalDate departureDate = today.plusDays(2);
-//
-//
-//        URI uri = UriBuilder.of(ENDPOINT_URL + "/" + id).build();
-//        MutableHttpRequest request = HttpRequest.GET(uri);
-//        HttpResponse<Reservation> httpResponse = client.toBlocking().exchange(request, Reservation.class);
-//
-//        assertEquals(HttpStatus.OK, httpResponse.getStatus(), "response status is wrong");
-//        Optional<Reservation> oBody = httpResponse.getBody();
-//        assertTrue(oBody.isPresent(), "body is empty");
-//
-//        // check the response
-//        Reservation newReservation = oBody.get();
-//
-//        assertEquals(id, newReservation.getId(), "Id is wrong");
-//        assertEquals(email, newReservation.getEmail(), "Email is wrong");
-//        assertEquals(fullname, newReservation.getFullname(), "Fullname is wrong");
-//        assertEquals(arrivalDate, newReservation.getArrivalDate(), "ArrivalDate is wrong");
-//        assertEquals(departureDate, newReservation.getDepartureDate(), "DepartureDate is wrong");
-//    }
-
     @Test
     void update() {
 
@@ -130,13 +91,5 @@ class ReservationControllerTest {
         assertEquals(updateReservation.getDepartureDate(), newReservation.getDepartureDate(), "DepartureDate is wrong");
     }
 
-    @Test
-    void delete() {
-        UUID id = UUID.randomUUID();
-        URI uri = UriBuilder.of(ENDPOINT_URL + "/" + id).build();
-        MutableHttpRequest request = HttpRequest.DELETE(uri, null);
-        HttpResponse httpResponse = client.toBlocking().exchange(request);
 
-        assertEquals(HttpStatus.NO_CONTENT, httpResponse.getStatus(), "response status is wrong");
-    }
 }
