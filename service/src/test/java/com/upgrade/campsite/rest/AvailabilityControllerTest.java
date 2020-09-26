@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -66,13 +67,15 @@ class AvailabilityControllerTest {
         }
 
         // set the random dates as occupied in the DB
-        occupiedDateService.saveAll(RESERVATION_ID, new ArrayList<LocalDate>(TAKEN_DATES));
+        // occupiedDateService.saveAll requires a Transaction to be attached
+        occupiedDateService.saveAllOpenTransaction(RESERVATION_ID, new ArrayList<LocalDate>(TAKEN_DATES));
     }
 
     @AfterEach
     void tearDown() {
         // cleanup the occupiedDate table for next test
-        occupiedDateService.deleteAllForReservationID(RESERVATION_ID);
+        // occupiedDateService.deleteAllForReservationID requires a Transaction to be attached
+        occupiedDateService.deleteAllForReservationIDOpenTransaction(RESERVATION_ID);
     }
 
 

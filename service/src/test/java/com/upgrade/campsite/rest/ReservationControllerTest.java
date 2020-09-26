@@ -1,6 +1,6 @@
 package com.upgrade.campsite.rest;
 
-import com.upgrade.campsite.dto.CreateReservation;
+import com.upgrade.campsite.dto.ReservationRequest;
 import com.upgrade.campsite.model.Reservation;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -33,21 +33,21 @@ class ReservationControllerTest {
     @Client("/")
     RxHttpClient client;
 
-    private CreateReservation getCreateReservation() {
-        CreateReservation createReservation = new CreateReservation();
-        createReservation.setFullname("fullname_" + RANDOM.nextInt(1000));
-        createReservation.setEmail("Email_" + RANDOM.nextInt(1000));
+    private ReservationRequest getCreateReservation() {
+        ReservationRequest reservationRequest = new ReservationRequest();
+        reservationRequest.setFullname("fullname_" + RANDOM.nextInt(1000));
+        reservationRequest.setEmail("Email_" + RANDOM.nextInt(1000) + "@a.com");
         LocalDate today = LocalDate.now();
-        createReservation.setArrivalDate(today.plusDays(1));
-        createReservation.setDepartureDate(today.plusDays(2));
-        return createReservation;
+        reservationRequest.setArrivalDate(today.plusDays(1));
+        reservationRequest.setDepartureDate(today.plusDays(2));
+        return reservationRequest;
     }
 
     @Test
     void create() {
         URI uri = UriBuilder.of(ENDPOINT_URL).build();
-        CreateReservation createReservation = getCreateReservation();
-        MutableHttpRequest request = HttpRequest.POST(uri, createReservation);
+        ReservationRequest reservationRequest = getCreateReservation();
+        MutableHttpRequest request = HttpRequest.POST(uri, reservationRequest);
         HttpResponse<Reservation> httpResponse = client.toBlocking().exchange(request, Reservation.class);
 
         assertEquals(HttpStatus.OK, httpResponse.getStatus(), "response status is wrong");
@@ -58,10 +58,10 @@ class ReservationControllerTest {
         Reservation newReservation = oBody.get();
 
         assertNotNull(newReservation.getId(), "Id must be provided");
-        assertEquals(createReservation.getEmail(), newReservation.getEmail(), "Email is wrong");
-        assertEquals(createReservation.getFullname(), newReservation.getFullname(), "Fullname is wrong");
-        assertEquals(createReservation.getArrivalDate(), newReservation.getArrivalDate(), "ArrivalDate is wrong");
-        assertEquals(createReservation.getDepartureDate(), newReservation.getDepartureDate(), "DepartureDate is wrong");
+        assertEquals(reservationRequest.getEmail(), newReservation.getEmail(), "Email is wrong");
+        assertEquals(reservationRequest.getFullname(), newReservation.getFullname(), "Fullname is wrong");
+        assertEquals(reservationRequest.getArrivalDate(), newReservation.getArrivalDate(), "ArrivalDate is wrong");
+        assertEquals(reservationRequest.getDepartureDate(), newReservation.getDepartureDate(), "DepartureDate is wrong");
 
 
     }
@@ -98,7 +98,7 @@ class ReservationControllerTest {
     void update() {
 
         UUID id = UUID.randomUUID();
-        CreateReservation updateReservation = getCreateReservation();
+        ReservationRequest updateReservation = getCreateReservation();
 
         URI uri = UriBuilder.of(ENDPOINT_URL + "/" + id).build();
         MutableHttpRequest request = HttpRequest.PATCH(uri, updateReservation);

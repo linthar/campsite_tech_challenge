@@ -8,6 +8,8 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -15,12 +17,13 @@ import java.util.UUID;
 @ToString
 @EqualsAndHashCode
 @Introspected
-public class CreateReservation {
+public class ReservationRequest {
 
     @NotNull
+    @Email
     private String email;
 
-    @NotNull
+    @NotBlank
     private String fullname;
 
     @NotNull
