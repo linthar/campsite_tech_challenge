@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.UUID;
 
 @JdbcRepository(dialect = Dialect.MYSQL)
-public interface OccupiedDateRepository extends CrudRepository<OccupiedDate, UUID> {
+public interface OccupiedDateRepository extends CrudRepository<OccupiedDate, LocalDate> {
 
     @Query(value = "SELECT * FROM occupied_date WHERE date BETWEEN :fromDate and :toDate")
     List<OccupiedDate> findAllBetweenDates(@NotNull LocalDate fromDate, @NotNull LocalDate toDate);
 
     @Query(value = "DELETE FROM occupied_date WHERE reservation_id = :reservationID")
     void deleteByReservationID(@NotNull UUID reservationID);
+
+    @Query(value = "SELECT EXISTS (SELECT 1 FROM occupied_date WHERE date BETWEEN :fromDate and :toDate)")
+    boolean existAnyBetweenDates(LocalDate fromDate, LocalDate toDate);
 }

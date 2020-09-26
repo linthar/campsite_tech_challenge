@@ -31,6 +31,17 @@ public class OccupiedDateService {
         return repository.findAllBetweenDates(fromDate, toDate);
     }
 
+    public boolean existAnyBetweenDates(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
+        return repository.existAnyBetweenDates(fromDate, toDate);
+    }
+
+     public boolean isOccupied(@NotNull LocalDate date) {
+        return repository.existsById(date);
+    }
+
+
+
+
     // must be attached to save reservation transaction in order to keep consistent the DB
     @Transactional(MANDATORY)
     public void saveAll(UUID reservationId, List<LocalDate> dates) {

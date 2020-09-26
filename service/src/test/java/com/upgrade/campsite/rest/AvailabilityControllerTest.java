@@ -177,7 +177,7 @@ class AvailabilityControllerTest {
         assertEquals(expectedSize, responseMap.size(), "response size is wrong for dates from: " +  fromDate + " to: " + toDate);
 
         // check each day between fromDate and toDate dates is present in the response
-        for (LocalDate date = fromDate; date.isBefore(toDate); date = date.plusDays(1)) {
+        for (LocalDate date = fromDate; date.isBefore(toDate.plusDays(1)); date = date.plusDays(1)) {
             String dateAvailavilty = responseMap.get(date);
             // checking each date exists in the map
             assertNotNull(dateAvailavilty, date + " availavilty is missing");

@@ -1,7 +1,8 @@
 package com.upgrade.campsite.rest;
 
-import com.upgrade.campsite.model.Reservation;
 import com.upgrade.campsite.dto.ReservationRequest;
+import com.upgrade.campsite.model.Reservation;
+import com.upgrade.campsite.service.ReservationService;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import io.micronaut.validation.Validated;
@@ -13,7 +14,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
-import com.upgrade.campsite.service.*;
 
 @Controller("/reservation")
 @Validated
@@ -25,14 +25,15 @@ public class ReservationController {
     private ReservationService service;
 
     @Post
-    public Optional<Reservation> create(@Body @Valid ReservationRequest reservation) {
-        return service.create(reservation);
+    public Reservation create(@Body @Valid ReservationRequest reservationRequest) {
+        return service.create(reservationRequest.getEmail(), reservationRequest.getFullname(),
+                reservationRequest.getArrivalDate(), reservationRequest.getDepartureDate());
     }
 
 
     @Get("/{id}")
     public Optional<Reservation> get(@PathVariable(value = "id") @NotNull UUID id) {
-        return service.get(id);
+        return service.findByID(id);
 
     }
 

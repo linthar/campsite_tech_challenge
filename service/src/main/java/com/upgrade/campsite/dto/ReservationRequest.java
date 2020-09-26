@@ -1,18 +1,13 @@
 package com.upgrade.campsite.dto;
 
 import io.micronaut.core.annotation.Introspected;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.validation.Validated;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @ToString
 @EqualsAndHashCode
@@ -31,6 +26,16 @@ public class ReservationRequest {
 
     @NotNull
     private LocalDate departureDate;
+
+    public ReservationRequest() {
+    }
+
+    public ReservationRequest(@NotNull @Email String email, @NotBlank String fullname, @NotNull LocalDate arrivalDate, @NotNull LocalDate departureDate) {
+        this.email = email;
+        this.fullname = fullname;
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
+    }
 
     public String getEmail() {
         return email;
