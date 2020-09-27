@@ -151,7 +151,7 @@ class DatesValidatorTest {
 
     @Test
     void validateReservationDatesErrorTooFarInAdvance() {
-        //tring to made a reservation too far in advance
+        //trying to made a reservation too far in advance
         LocalDate arrivalDate = TODAY.plusMonths(1).plusDays(1);
         LocalDate departureDate = arrivalDate.plusDays(1);
         try {
@@ -164,7 +164,7 @@ class DatesValidatorTest {
 
     @Test
     void validateReservationDatesErrorToday() {
-        //tring to made a reservation too far in advance
+        //trying to made a reservation for today
         LocalDate arrivalDate = TODAY;
         LocalDate departureDate = arrivalDate.plusDays(1);
         try {
