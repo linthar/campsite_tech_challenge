@@ -28,6 +28,9 @@ public class AvailabilityService {
     @Inject
     private DatesValidator datesValidator;
 
+    @Inject
+    private RedisClient redisClient;
+
     public Map<LocalDate, String> getAvailability(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
         LOG.debug("searching getAvailability for [fromDate: {} - toDate: {}]", fromDate, toDate);
         datesValidator.validateAvailabilityDates(fromDate, toDate);
@@ -37,7 +40,8 @@ public class AvailabilityService {
 
         // response is a map with all dates between fromDate and toDate as vacant
         // (TreeMap is ordered) Json response will be ordered by date descending
-        TreeMap<LocalDate, String> response = buildResponseMapTemplate(fromDate, toDate);
+        TreeMap<LocalDate, String> response = buildAvailabilityReportMapTemplate(fromDate, toDate);
+
 
         // now we have to replace all occupiedDates as taken in the response template map
         occupiedDates.stream().forEach(occupiedDate -> response.put(occupiedDate.getDate(), OCCUPIED_DATE));
@@ -51,7 +55,7 @@ public class AvailabilityService {
      * (TreeMap is ordered) the response will be ordered by date descending
      * <p>
      * e.g.:
-     * buildResponseMapTemplate(2020-10-16, 2020-10-18)
+     * buildAvailabilityReportMapTemplate(2020-10-16, 2020-10-18)
      * returns:
      * {
      * "2020-10-16": "vacant",
@@ -63,7 +67,7 @@ public class AvailabilityService {
      * @param toDate   last date in the map
      * @return a TreeMap
      */
-    protected TreeMap<LocalDate, String> buildResponseMapTemplate(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
+    protected TreeMap<LocalDate, String> buildAvailabilityReportMapTemplate(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
 
         TreeMap<LocalDate, String> template = new TreeMap<LocalDate, String>();
         LocalDate loopLimit = toDate.plusDays(1);

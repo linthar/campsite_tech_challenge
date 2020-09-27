@@ -125,35 +125,35 @@ class AvailabilityServiceTest {
     }
 
 
-    /// buildResponseMapTemplate() tests
+    /// buildAvailabilityReportMapTemplate() tests
     //////////////////////////////////
 
     @Test
-    void buildResponseMapTemplateForOneDay() {
+    void buildAvailabilityReportMapTemplateForOneDay() {
         LocalDate fromDate = TODAY.plusDays(1);
         LocalDate toDate = fromDate;
         //border case one day (fromDate == toDate)
-        TreeMap<LocalDate, String> templateMap = service.buildResponseMapTemplate(fromDate, toDate);
+        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMapTemplate(fromDate, toDate);
         assertTemplateMapForDates(templateMap, 1, fromDate, toDate);
     }
 
     @Test
-    void buildResponseMapTemplateForOneMonth() {
+    void buildAvailabilityReportMapTemplateForOneMonth() {
         LocalDate fromDate = TODAY.plusDays(1);
         LocalDate toDate = TODAY.plusDays(30);
 
-        TreeMap<LocalDate, String> templateMap = service.buildResponseMapTemplate(fromDate, toDate);
+        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMapTemplate(fromDate, toDate);
         assertTemplateMapForDates(templateMap, 30, fromDate, toDate);
     }
 
 
     @Test
-    void buildResponseMapTemplateForInvalidDates() {
+    void buildAvailabilityReportMapTemplateForInvalidDates() {
         LocalDate fromDate = TODAY.plusDays(1);
         LocalDate toDate = fromDate.minusDays(10);
         //border case (fromDate is after toDate)
 
-        TreeMap<LocalDate, String> templateMap = service.buildResponseMapTemplate(fromDate, toDate);
+        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMapTemplate(fromDate, toDate);
         assertEquals(0, templateMap.size(), "templateMap size must be zero for invalid dates: " + fromDate + " to: " + toDate);
     }
 
