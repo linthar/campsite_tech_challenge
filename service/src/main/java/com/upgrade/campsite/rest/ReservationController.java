@@ -1,6 +1,6 @@
 package com.upgrade.campsite.rest;
 
-import com.upgrade.campsite.dto.ReservationRequest;
+import com.upgrade.campsite.rest.dto.ReservationRequest;
 import com.upgrade.campsite.model.Reservation;
 import com.upgrade.campsite.service.ReservationService;
 import io.micronaut.http.HttpStatus;

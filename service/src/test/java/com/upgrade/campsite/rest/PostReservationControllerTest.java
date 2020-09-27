@@ -1,6 +1,6 @@
 package com.upgrade.campsite.rest;
 
-import com.upgrade.campsite.dto.ReservationRequest;
+import com.upgrade.campsite.rest.dto.ReservationRequest;
 import com.upgrade.campsite.model.OccupiedDate;
 import com.upgrade.campsite.model.Reservation;
 import com.upgrade.campsite.repository.OccupiedDateRepository;
@@ -25,7 +25,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,6 +1,6 @@
 package com.upgrade.campsite.utils;
 
-import com.upgrade.campsite.dto.ReservationRequest;
+import com.upgrade.campsite.rest.dto.ReservationRequest;
 
 import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;

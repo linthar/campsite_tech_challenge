@@ -1,4 +1,4 @@
-package com.upgrade.campsite.dto;
+package com.upgrade.campsite.rest.dto;
 
 import org.junit.jupiter.api.Test;
 

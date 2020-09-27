@@ -1,4 +1,4 @@
-package com.upgrade.campsite.dto;
+package com.upgrade.campsite.rest.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import lombok.EqualsAndHashCode;
