@@ -21,13 +21,9 @@ public class AvailabilityTestUtils {
      */
     public static List<LocalDate> toLocalDateList(List<OccupiedDate> occupiedDates) {
 
-        return
-                occupiedDates.stream()
-                        .map(occupiedDate -> {
-                            return occupiedDate.getDate();
-                        })
-                        .collect(Collectors.toList());
-
+        return occupiedDates.stream()
+               .map(occupiedDate -> {return occupiedDate.getDate();})
+               .collect(Collectors.toList());
     }
 
     /**

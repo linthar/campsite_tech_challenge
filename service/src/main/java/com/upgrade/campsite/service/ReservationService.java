@@ -3,6 +3,7 @@ package com.upgrade.campsite.service;
 import com.upgrade.campsite.exception.ServiceException;
 import com.upgrade.campsite.model.Reservation;
 import com.upgrade.campsite.repository.ReservationRepository;
+import com.upgrade.campsite.utils.DatesValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +32,16 @@ public class ReservationService {
     @Inject
     private ReservationRepository repository;
 
+    @Inject
+    private DatesValidator datesValidator;
+
+
     public Reservation create(@NotNull @Email String email, @NotBlank String fullname,
                               @NotNull LocalDate arrival, @NotNull LocalDate departure) {
 
-        validateReservationDates(arrival, departure);
-
-        if (occupiedDateService.existAnyBetweenDates(arrival, departure)) {
-            throw new ServiceException("provided dates period is no free, check please check availability for details");
-        }
-
+        datesValidator.validateReservationDates(arrival, departure);
+        //and check if dates are available
+        checkVacanciesForDates(arrival, departure);
 
         Reservation entity = new Reservation();
         UUID reservationId = UUID.randomUUID();
@@ -91,17 +93,16 @@ public class ReservationService {
     // so rollback will rollback parent too
     @Transactional(Transactional.TxType.MANDATORY)
     private void updateDates(Reservation entity, LocalDate newArrival, LocalDate newDeparture ) {
-        validateReservationDates(newArrival, newDeparture);
+        datesValidator.validateReservationDates(newArrival, newDeparture);
 
         //TODO first impl (quick and dirty )
         // delete old reservation occupied dates
         // because will fail for existAnyBetweenDates check... but could be same reservation that should be
         occupiedDateService.deleteAllForReservationID(entity.getId());
         //and check if dates are available
-        if (occupiedDateService.existAnyBetweenDates(newArrival, newDeparture)) {
-            throw new ServiceException("provided dates period is no free, check please check availability for details");
-        }
-
+        checkVacanciesForDates(newArrival, newDeparture);
+        entity.setArrivalDate(newArrival);
+        entity.setDepartureDate(newDeparture);
     }
 
 
@@ -110,44 +111,6 @@ public class ReservationService {
         repository.deleteById(id);
     }
 
-
-    /**
-     * Check if dates are valid for reserve the campsite
-     * <p>
-     * The campsite can be reserved for max 3 days.
-     * The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance.
-     *
-     * @param arrivalDate   reservation arrival date
-     * @param departureDate reservation departure date
-     */
-    private void validateReservationDates(LocalDate arrivalDate, LocalDate departureDate) {
-        LOG.debug("checking reservation dates [arrivalDate {} - departureDate {}]", arrivalDate, departureDate);
-
-
-        // arrivalDate <= departureDate
-        if (departureDate.isBefore(arrivalDate)) {
-            throw new ServiceException("arrivalDate must be before (or equals) to departureDate");
-        }
-
-        long stayDays = ChronoUnit.DAYS.between(arrivalDate, departureDate) + 1;
-        if (stayDays > 3) {
-            throw new ServiceException("The campsite can be reserved for max 3 days");
-        }
-
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
-
-        if (arrivalDate.isBefore(tomorrow)) {
-            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance");
-        }
-
-        LocalDate nextMonthDate = today.plusMonths(1);
-        if (departureDate.isAfter(nextMonthDate)) {
-            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance");
-        }
-
-        LOG.debug("checking reservation dates are valid! [arrivalDate {} - departureDate {}]", arrivalDate, departureDate);
-    }
 
     /**
      * generates a list containing each date
@@ -165,5 +128,15 @@ public class ReservationService {
         return dates;
     }
 
+    /**
+     * verifies that all dates between the given dates (inclusive) are FREE (NOT OCCUPIED)
+     * @param newArrival first date to check
+     * @param newDeparture last date to check
+     */
+    protected void checkVacanciesForDates(LocalDate newArrival, LocalDate newDeparture) {
+        if (occupiedDateService.existAnyBetweenDates(newArrival, newDeparture)) {
+            throw new ServiceException("provided dates period is no free, check please check availability for details");
+        }
+    }
 
 }

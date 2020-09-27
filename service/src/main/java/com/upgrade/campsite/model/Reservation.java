@@ -39,6 +39,17 @@ public class Reservation {
     @NotNull
     private LocalDate departureDate;
 
+    public Reservation() {
+    }
+
+    public Reservation(UUID id, @NotNull String email, @NotNull String fullname, @NotNull LocalDate arrivalDate, @NotNull LocalDate departureDate) {
+        this.id = id;
+        this.email = email;
+        this.fullname = fullname;
+        this.arrivalDate = arrivalDate;
+        this.departureDate = departureDate;
+    }
+
     public UUID getId() {
         return id;
     }

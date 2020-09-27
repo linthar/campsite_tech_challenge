@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Singleton
 public class DatesValidator {
@@ -41,13 +42,54 @@ public class DatesValidator {
         }
 
         LocalDate oneMonthAhead = today.plusMonths(1);
-        // toDate must be at most one moth ahead from now
+        // toDate must be at most one month ahead from now
         if (toDate.isAfter(oneMonthAhead)) {
-            throw new ServiceException("Invalid parameter toDate '" + toDate + "'. Must be at most one moth ahead from now");
+            throw new ServiceException("Invalid parameter toDate '" + toDate + "'. Must be at most one month ahead from now");
         }
 
         LOG.debug("date range is valid! [fromDate {} - toDate {}]", fromDate, toDate);
     }
+
+
+
+    /**
+     * Check if dates are valid for reserve the campsite
+     * <p>
+     * The campsite can be reserved for max 3 days.
+     * The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance.
+     *
+     * @param arrivalDate   reservation arrival date
+     * @param departureDate reservation departure date
+     */
+    public void validateReservationDates(LocalDate arrivalDate, LocalDate departureDate) {
+        LOG.debug("checking reservation dates [arrivalDate {} - departureDate {}]", arrivalDate, departureDate);
+
+
+        // arrivalDate <= departureDate
+        if (departureDate.isBefore(arrivalDate)) {
+            throw new ServiceException("arrivalDate must be before (or equals) to departureDate");
+        }
+
+        long stayDays = ChronoUnit.DAYS.between(arrivalDate, departureDate) + 1;
+        if (stayDays > 3) {
+            throw new ServiceException("The campsite can be reserved for max 3 days");
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+
+        if (arrivalDate.isBefore(tomorrow)) {
+            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance");
+        }
+
+        LocalDate nextMonthDate = today.plusMonths(1);
+        if (departureDate.isAfter(nextMonthDate)) {
+            throw new ServiceException("The campsite can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance");
+        }
+
+        LOG.debug("checking reservation dates are valid! [arrivalDate {} - departureDate {}]", arrivalDate, departureDate);
+    }
+
 
 
 }
