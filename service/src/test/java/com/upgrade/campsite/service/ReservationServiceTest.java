@@ -52,6 +52,15 @@ class ReservationServiceTest {
         return mock(DatesValidator.class);
     }
 
+    @Inject
+    private AvailabilityService availabilityServiceMock;
+
+    @MockBean(AvailabilityService.class)
+    AvailabilityService availabilityServiceMock() {
+        return mock(AvailabilityService.class);
+    }
+
+
     final LocalDate TODAY = LocalDate.now();
     final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
@@ -63,8 +72,7 @@ class ReservationServiceTest {
         LocalDate departureDate = arrivalDate.plusDays(1);
 
         // asserts that dates where available
-        when(occupiedDateServiceMock.existAnyBetweenDates(arrivalDate, departureDate)).thenReturn(false);
-
+        when(availabilityServiceMock.isAvailableBetweenDates(arrivalDate, departureDate)).thenReturn(true);
 
         service.create(email, fullname, arrivalDate, departureDate);
 
@@ -95,7 +103,7 @@ class ReservationServiceTest {
         LocalDate departureDate = arrivalDate.plusDays(1);
 
         // Some dates are taken in the period [arrivalDate, departureDate]
-        when(occupiedDateServiceMock.existAnyBetweenDates(arrivalDate, departureDate)).thenReturn(true);
+        when(availabilityServiceMock.isAvailableBetweenDates(arrivalDate, departureDate)).thenReturn(false);
 
         try {
             service.create(email, fullname, arrivalDate, departureDate);
@@ -212,7 +220,7 @@ class ReservationServiceTest {
         when(repositoryMock.findById(id)).thenReturn(Optional.of(found));
 
         // asserts that dates where NO Occupied Dates in the requested period (ALL DATES ARE FREE)
-        when(occupiedDateServiceMock.existAnyBetweenDates(newArrivalDate, newDepartureDate)).thenReturn(false);
+        when(availabilityServiceMock.isAvailableBetweenDates(newArrivalDate, newDepartureDate)).thenReturn(true);
 
         // dates have changed .. must change OccupiedDates also
         // and there new dates period is vacant
@@ -272,6 +280,52 @@ class ReservationServiceTest {
 
 
     @Test
-    void createDatesBetweenList() {
+    void createDatesBetweenListForToday() {
+
+        List<LocalDate> dates = service.createDatesBetweenList(TODAY, TODAY);
+        assertEquals(1, dates.size());
+        assertTrue(dates.contains(TODAY));
     }
+
+    @Test
+    void createDatesBetweenListForPeriod() {
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(5);
+
+        // must generate 6 days period (fromDate and 5 more)
+        List<LocalDate> dates = service.createDatesBetweenList(fromDate, toDate);
+        assertEquals(6, dates.size());
+
+        for (int i = 0; i < 6; i++) {
+            LocalDate d = fromDate.plusDays(i);
+            assertTrue(dates.contains(d));
+        }
+    }
+
+
+    @Test
+    void checkVacanciesForDatesOk() {
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(0, 2));
+        // all dates are vacant in the period
+
+        when(availabilityServiceMock.isAvailableBetweenDates(fromDate, toDate)).thenReturn(true);
+
+        service.checkVacanciesForDates(fromDate, toDate);
+    }
+
+    @Test
+    void checkVacanciesForDatesWhenNoVacancy() {
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(0, 2));
+        // there are some taken dates in the period
+        when(availabilityServiceMock.isAvailableBetweenDates(fromDate, toDate)).thenReturn(false);
+
+        try {
+            service.checkVacanciesForDates(fromDate, toDate);
+        } catch (ServiceException e) {
+            assertEquals("provided dates period is no free, check please check availability for details", e.getMessage());
+        }
+    }
+
 }

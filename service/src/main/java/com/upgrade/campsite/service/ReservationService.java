@@ -111,7 +111,7 @@ public class ReservationService {
     // This method trx must be attached to parent trx
     // so rollback will rollback parent too
     @Transactional(Transactional.TxType.MANDATORY)
-    private void updateDates(Reservation entity, LocalDate newArrival, LocalDate newDeparture ) {
+    private void updateDates(Reservation entity, LocalDate newArrival, LocalDate newDeparture) {
         datesValidator.validateReservationDates(newArrival, newDeparture);
 
         //TODO first impl (quick and dirty )
@@ -126,11 +126,11 @@ public class ReservationService {
 
 
     /**
-     * generates a list containing each date
+     * generates a list containing each date  between start and end (inclusive)
      *
-     * @param start
-     * @param end
-     * @return
+     * @param start first date in the list
+     * @param end   last date in the list
+     * @return a list containig all dates between start and end (inclusive)
      */
     protected List<LocalDate> createDatesBetweenList(LocalDate start, LocalDate end) {
         List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
@@ -143,11 +143,12 @@ public class ReservationService {
 
     /**
      * verifies that all dates between the given dates (inclusive) are FREE (NOT OCCUPIED)
-     * @param newArrival first date to check
-     * @param newDeparture last date to check
+     *
+     * @param fromDate first date to check
+     * @param toDate   last date to check
      */
-    protected void checkVacanciesForDates(LocalDate newArrival, LocalDate newDeparture) {
-        if (!availabilityService.isAvailableBetweenDates(newArrival, newDeparture)) {
+    protected void checkVacanciesForDates(LocalDate fromDate, LocalDate toDate) {
+        if (!availabilityService.isAvailableBetweenDates(fromDate, toDate)) {
             throw new ServiceException("provided dates period is no free, check please check availability for details");
         }
     }
