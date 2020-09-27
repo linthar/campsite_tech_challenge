@@ -62,14 +62,14 @@ public class OccupiedDateService {
     @Transactional(REQUIRED)
     // this method was made to be called from tests classes
     // deleteAllForReservationID requires a Transaction to be attached
-    void deleteAllForReservationIDOpenTransaction(UUID reservationId) {
+    public void deleteAllForReservationIDOpenTransaction(UUID reservationId) {
         this.deleteAllForReservationID(reservationId);
     }
 //TODO Fix this in tests
     @Transactional(REQUIRED)
     // this method was made to be called from tests classes
     // saveAll requires a Transaction to be attached
-    void saveAllOpenTransaction(UUID reservationId, List<LocalDate> dates) {
+    public void saveAllOpenTransaction(UUID reservationId, List<LocalDate> dates) {
         this.saveAll(reservationId, dates);
     }
 
