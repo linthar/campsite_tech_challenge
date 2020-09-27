@@ -1,23 +1,21 @@
 package com.upgrade.campsite.service;
 
 import com.upgrade.campsite.cache.RedisClient;
-import com.upgrade.campsite.model.OccupiedDate;
 import com.upgrade.campsite.utils.AvailavilityConstants;
 import com.upgrade.campsite.utils.DatesValidator;
+import io.micronaut.cache.$AsyncCacheErrorHandlerDefinitionClass;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.upgrade.campsite.utils.AvailabilityTestUtils.assertAvailabilityForDatesRange;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @MicronautTest
@@ -54,10 +52,7 @@ class AvailabilityServiceTest {
         redisClient.getRedisCommands().flushall();
     }
 
-    // tests use "valid" dates, dates validity are tested in DatesValidatorTest class
-
-    //getAvailability() tests
-    //////////////////////////////////
+    // tests uses "valid" dates, dates validity are tested in DatesValidatorTest class
 
     @Test
     void getAvailabilityWithAllDatesVacant() {
@@ -134,10 +129,6 @@ class AvailabilityServiceTest {
 
     }
 
-
-    /// buildAvailabilityReportMap() tests
-    //////////////////////////////////
-
     @Test
     void buildAvailabilityReportMapForOneDay() {
         LocalDate fromDate = TODAY.plusDays(1);
@@ -180,6 +171,68 @@ class AvailabilityServiceTest {
             assertEquals(AvailavilityConstants.NOT_OCCUPIED_DATE, dateAvailavilty, date + " availability value is wrong");
         }
     }
+
+    @Test
+    void isAvailableBetweenDatesWhenNoOccupiedDatesI() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // there are no occupied dates in REDIS
+        assertTrue(service.isAvailableBetweenDates(fromDate, toDate));
+    }
+
+    @Test
+    void isAvailableBetweenDatesOneDateBeginning() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // one of the date (at the Beginning of the period) are marked as occupied in REDIS
+        redisClient.storeInCache(fromDate, UUID.randomUUID());
+
+        assertFalse(service.isAvailableBetweenDates(fromDate, toDate));
+    }
+
+    @Test
+    void isAvailableBetweenDatesOneDateMiddle() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // one of the date (in the Middle of the period) are marked as occupied in REDIS
+        redisClient.storeInCache(fromDate.plusDays(1), UUID.randomUUID());
+
+        assertFalse(service.isAvailableBetweenDates(fromDate, toDate));
+    }
+
+    @Test
+    void isAvailableBetweenDatesOneDateEnd() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // one of the date (in the End of the period) are marked as occupied in REDIS
+        redisClient.storeInCache(toDate, UUID.randomUUID());
+
+        assertFalse(service.isAvailableBetweenDates(fromDate, toDate));
+    }
+
+
+    @Test
+    void isAvailableBetweenDatesOutside() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // there are dates marked as occupied in REDIS
+        // but outside the period (Before or/and After)
+        redisClient.storeInCache(fromDate.minusDays(1), UUID.randomUUID());
+        redisClient.storeInCache(toDate.plusDays(1), UUID.randomUUID());
+
+        assertTrue(service.isAvailableBetweenDates(fromDate, toDate));
+    }
+
 
 
 }

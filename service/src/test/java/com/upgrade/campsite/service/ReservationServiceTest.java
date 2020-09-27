@@ -64,6 +64,9 @@ class ReservationServiceTest {
     final LocalDate TODAY = LocalDate.now();
     final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
+    // tests uses "valid" dates, dates validity are tested in DatesValidatorTest class
+
+
     @Test
     void create() {
         String email = "Email_" + RANDOM.nextInt(1000) + "@a.com";
