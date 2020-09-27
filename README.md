@@ -7,8 +7,7 @@ Requeriments
 - docker
 - jdk 11
 
-
-# Test Coverage
+# Test Coverage Report
 
 ````
 ./test.sh
@@ -29,14 +28,20 @@ Requeriments
 
 #### MySQL start/stop
 
- After MySQL setup is done you can start stop the DB using the commands:
+ After setup is done you can start/stop MySQL server using the commands:
 
 ```
 docker stop mysqlCampsite
 docker start mysqlCampsite
 ```
+#### REDIS start/stop
 
+ After setup is done you can start/stop REDIS server using the commands:
 
+```
+docker start redisCampsite
+docker stop redisCampsite
+```
 
 
 ## Running the service

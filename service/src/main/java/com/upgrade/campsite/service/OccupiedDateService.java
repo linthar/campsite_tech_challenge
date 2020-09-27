@@ -3,6 +3,10 @@ package com.upgrade.campsite.service;
 
 import com.upgrade.campsite.model.OccupiedDate;
 import com.upgrade.campsite.repository.OccupiedDateRepository;
+import com.upgrade.campsite.service.aop.OccupiedDateCreatedEvent;
+import com.upgrade.campsite.service.aop.OccupiedDateDeletedEvent;
+import io.micronaut.context.event.ApplicationEventPublisher;
+import io.micronaut.validation.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +18,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import static javax.transaction.Transactional.TxType.*;
+import static javax.transaction.Transactional.TxType.MANDATORY;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 @Singleton
+@Validated
 @Transactional
 public class OccupiedDateService {
 
@@ -25,6 +31,8 @@ public class OccupiedDateService {
     @Inject
     private OccupiedDateRepository repository;
 
+    @Inject
+    private ApplicationEventPublisher applicationEventPublisher;
 
     public List<OccupiedDate> findAllBetweenDates(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
         return repository.findAllBetweenDates(fromDate, toDate);
@@ -45,7 +53,10 @@ public class OccupiedDateService {
     public void saveAll(UUID reservationId, List<LocalDate> dates) {
         LOG.debug("setting dates as occupied: {}", dates);
         for (LocalDate d : dates) {
-            repository.save(new OccupiedDate(d, reservationId));
+            // at most there are 3 dates for each reservation
+            OccupiedDate od = new OccupiedDate(d, reservationId);
+            repository.save(od);
+            applicationEventPublisher.publishEvent(new OccupiedDateCreatedEvent(od));
         }
     }
 
@@ -54,18 +65,21 @@ public class OccupiedDateService {
     @Transactional(MANDATORY)
     public void deleteAllForReservationID(UUID reservationId) {
         LOG.debug("deleting all OccupiedDates for reservation id: {}", reservationId);
+
+        List<OccupiedDate> datesToDelete = repository.findAllByReservationId(reservationId);
+        // at most there are 3 dates for each reservation
+        for (OccupiedDate od :datesToDelete) {
+            applicationEventPublisher.publishEvent(new OccupiedDateDeletedEvent(od));
+        }
+
+        // execute DELETE query
         repository.deleteByReservationID(reservationId);
+
     }
 
 
     ////////// methods needed for tests clases
-//TODO Fix this in tests
-    @Transactional(REQUIRES_NEW)
-    // this method was made to be called from tests classes
-    // deleteAllForReservationID requires a Transaction to be attached
-    public void deleteAllForReservationIDOpenTransaction(UUID reservationId) {
-        this.deleteAllForReservationID(reservationId);
-    }
+
 //TODO Fix this in tests
     @Transactional(REQUIRES_NEW)
     // this method was made to be called from tests classes

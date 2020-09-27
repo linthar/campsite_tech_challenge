@@ -6,25 +6,12 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class AvailabilityTestUtils {
 
-
-    /**
-     * returns a list of List<LocalDate> containig each LocalDate in occupiedDates list
-     *
-     * @param occupiedDates   list of dates (OccupiedDate) to extract the LocalDate
-     */
-    public static List<LocalDate> toLocalDateList(List<OccupiedDate> occupiedDates) {
-
-        return occupiedDates.stream()
-               .map(occupiedDate -> {return occupiedDate.getDate();})
-               .collect(Collectors.toList());
-    }
 
     /**
      * Asserts that availabilityMap contains all dates between fromDate and toDate

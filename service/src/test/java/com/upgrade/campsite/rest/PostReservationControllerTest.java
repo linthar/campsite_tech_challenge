@@ -1,5 +1,6 @@
 package com.upgrade.campsite.rest;
 
+import com.upgrade.campsite.cache.RedisClient;
 import com.upgrade.campsite.rest.dto.ReservationRequest;
 import com.upgrade.campsite.model.OccupiedDate;
 import com.upgrade.campsite.model.Reservation;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
-class PostReservationControllerTest {
+class PostReservationControllerTest extends  AbstractRestControllerTest {
 
     // this class is an End-to-End test case suite (from HttpClient to DB)
     // The idea is to detect any layer interoperation problem (rest/service/repository/DB)
@@ -44,36 +46,14 @@ class PostReservationControllerTest {
     final String ENDPOINT_URL = "/reservation";
     final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
-
-    @Inject
-    @Client("/")
-    RxHttpClient client;
-
-    @Inject
-    private OccupiedDateService occupiedDateService;
-
-    @Inject
-    private ReservationService service;
-
-    @Inject
-    private OccupiedDateRepository occupiedDateRepository;
-
-    @Inject
-    private ReservationRepository reservationRepository;
-
     @BeforeEach
     void setUp() {
-        occupiedDateRepository.deleteAll();
-        reservationRepository.deleteAll();
-        // starts with an empty DB to avoid false negative in tests
-        // (reservation dates are random)
+        super.setUp();
     }
 
     @AfterEach
     void tearDown() {
-        // cleanup the DB for just in case for Next Tests
-        occupiedDateRepository.deleteAll();
-        reservationRepository.deleteAll();
+        super.tearDown();
     }
 
     @Test
@@ -115,10 +95,11 @@ class PostReservationControllerTest {
         // check entity is stored in DB
         assertTrue(service.findByID(entity.getId()).isPresent());
 
-        // check each day between fromDate and toDate dates is set as Occupied
+        // check each day between fromDate and toDate dates is set as Occupied in DB and Redis
         List<OccupiedDate> occupiedDates = occupiedDateService.findAllBetweenDates(arrivalDate, departureDate);
         for (LocalDate date = arrivalDate; date.isBefore(departureDate.plusDays(1)); date = date.plusDays(1)) {
             assertTrue(occupiedDateService.isOccupied(date));
+//TODO            assertNotNull(redisClient.getFromCache(date));
         }
 
         // check each day between fromDate and toDate dates is stored as Occupied in the DB

@@ -1,5 +1,6 @@
 package com.upgrade.campsite.rest;
 
+import com.upgrade.campsite.cache.RedisClient;
 import com.upgrade.campsite.service.OccupiedDateService;
 import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -25,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MicronautTest
-class AvailabilityControllerTest {
+class AvailabilityControllerTest extends AbstractRestControllerTest {
 
     // this class is an End-to-End test case suite (from HttpClient to DB)
     // The idea is to detect any layer interoperation problem (rest/service/repository/DB)
@@ -35,12 +37,7 @@ class AvailabilityControllerTest {
 
     final String ENDPOINT_URL = "/availability";
 
-    @Inject
-    @Client("/")
-    RxHttpClient client;
 
-    @Inject
-    private OccupiedDateService occupiedDateService;
 
     final LocalDate TODAY = LocalDate.now();
     private List<LocalDate> TAKEN_DATES;
@@ -49,6 +46,9 @@ class AvailabilityControllerTest {
 
     @BeforeEach
     void setUp() {
+        super.setUp();
+
+
         // takenDatesSet is a set to avoid taking care of repeated dates
         HashSet<LocalDate> takenDatesSet = new HashSet<LocalDate>();
         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -64,6 +64,8 @@ class AvailabilityControllerTest {
                 randomDate = TODAY.plusMonths(1);
             }
             takenDatesSet.add(randomDate);
+            // also store the Taken date into Redis cache
+            redisClient.storeInCache(randomDate, UUID.randomUUID());
         }
 
         TAKEN_DATES = new ArrayList<LocalDate>(takenDatesSet);
@@ -75,9 +77,7 @@ class AvailabilityControllerTest {
 
     @AfterEach
     void tearDown() {
-        // cleanup the occupiedDate table for next test
-        // occupiedDateService.deleteAllForReservationID requires a Transaction to be attached
-        occupiedDateService.deleteAllForReservationIDOpenTransaction(RESERVATION_ID);
+        super.tearDown();
     }
 
 

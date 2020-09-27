@@ -17,6 +17,8 @@ allprojects {
 			jakartaPersistenceApiVersion = "2.2.2"
 			liquibaseVersion = "3.8.4"
 
+			// REDIS
+			redisVersion = "2.0.0"
 
 			// service test
 			junitJupiterEngineVersion = "5.6.0"

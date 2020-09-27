@@ -29,3 +29,7 @@ liquibase:
   datasources:
     default:
       change-log: 'classpath:db/changelog.xml'
+
+
+redis:
+  uri: redis://localhost

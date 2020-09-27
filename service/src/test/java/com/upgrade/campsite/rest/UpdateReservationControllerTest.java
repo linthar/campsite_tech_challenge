@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
-class UpdateReservationControllerTest {
+class UpdateReservationControllerTest  extends  AbstractRestControllerTest  {
 
     // this class is an End-to-End test case suite (from HttpClient to DB)
     // The idea is to detect any layer interoperation problem (rest/service/repository/DB)
@@ -41,37 +41,15 @@ class UpdateReservationControllerTest {
     final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
 
-    @Inject
-    @Client("/")
-    RxHttpClient client;
-
-    @Inject
-    private OccupiedDateService occupiedDateService;
-
-    @Inject
-    private ReservationService service;
-
-    @Inject
-    private OccupiedDateRepository occupiedDateRepository;
-
-    @Inject
-    private ReservationRepository reservationRepository;
-
     @BeforeEach
     void setUp() {
-        occupiedDateRepository.deleteAll();
-        reservationRepository.deleteAll();
-        // starts with an empty DB to avoid false negative in tests
-        // (reservation dates are random)
+        super.setUp();
     }
 
     @AfterEach
     void tearDown() {
-        // cleanup the DB for just in case for Next Tests
-        occupiedDateRepository.deleteAll();
-        reservationRepository.deleteAll();
+        super.tearDown();
     }
-
 
     @Test
     void update() {

@@ -4,6 +4,7 @@ import com.upgrade.campsite.exception.ServiceException;
 import com.upgrade.campsite.model.Reservation;
 import com.upgrade.campsite.repository.ReservationRepository;
 import com.upgrade.campsite.utils.DatesValidator;
+import io.micronaut.validation.Validated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Singleton
+@Validated
 public class ReservationService {
     private static final Logger LOG = LoggerFactory.getLogger(ReservationService.class);
 
@@ -32,7 +34,11 @@ public class ReservationService {
     private ReservationRepository repository;
 
     @Inject
+    private AvailabilityService availabilityService;
+
+    @Inject
     private DatesValidator datesValidator;
+
 
     // this method must handle the "parent" transaction
     @Transactional(Transactional.TxType.REQUIRES_NEW)
@@ -58,7 +64,6 @@ public class ReservationService {
         saveOccupiedDates(entity);
         return entity;
     }
-
 
     public Optional<Reservation> findByID(@NotNull UUID id) {
         LOG.debug("finding reservation by id: {}", id);
@@ -142,7 +147,7 @@ public class ReservationService {
      * @param newDeparture last date to check
      */
     protected void checkVacanciesForDates(LocalDate newArrival, LocalDate newDeparture) {
-        if (occupiedDateService.existAnyBetweenDates(newArrival, newDeparture)) {
+        if (!availabilityService.isAvailableBetweenDates(newArrival, newDeparture)) {
             throw new ServiceException("provided dates period is no free, check please check availability for details");
         }
     }

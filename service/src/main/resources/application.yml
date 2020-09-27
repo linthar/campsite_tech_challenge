@@ -48,15 +48,17 @@ db:
   schema:
     version: '1.0'
 
+redis:
+  uri: ${REDIS_URI}
 
 logger:
   levels:
     root: ${ROOT_LOGGING_LEVEL:INFO}
     com:
-      upgrade: ${UPG_LOGGING_LEVEL:INFO}
+      upgrade: ${CAMPSITE_LOGGING_LEVEL:INFO}
     io:
       micronaut:
         http:
           server:
             netty:
-              NettyHttpServer:  ${UPG_LOGGING_LEVEL:INFO}  # Received Request log
+              NettyHttpServer:  ${CAMPSITE_LOGGING_LEVEL:INFO}  # Received Request log

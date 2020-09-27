@@ -10,6 +10,8 @@ import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.uri.UriBuilder;
 import io.micronaut.test.annotation.MicronautTest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -20,7 +22,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
-class AvailabilityInvalidDatesControllerTest {
+class AvailabilityInvalidDatesControllerTest extends  AbstractRestControllerTest {
 
     // this class is an End-to-End test case suite (HttpClient to REST service)
     // The idea is to check the error response (HTTP status & message)
@@ -29,11 +31,17 @@ class AvailabilityInvalidDatesControllerTest {
 
     final String ENDPOINT_URL = "/availability";
 
-    @Inject
-    @Client("/")
-    RxHttpClient client;
-
     final LocalDate TODAY = LocalDate.now();
+
+    @BeforeEach
+    void setUp() {
+        super.setUp();
+    }
+
+    @AfterEach
+    void tearDown() {
+        super.tearDown();
+    }
 
 
     @Test

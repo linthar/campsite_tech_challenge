@@ -1,19 +1,21 @@
 package com.upgrade.campsite.service;
 
+import com.upgrade.campsite.cache.RedisClient;
 import com.upgrade.campsite.model.OccupiedDate;
 import com.upgrade.campsite.utils.AvailavilityConstants;
 import com.upgrade.campsite.utils.DatesValidator;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.upgrade.campsite.utils.AvailabilityTestUtils.assertAvailabilityForDatesRange;
-import static com.upgrade.campsite.utils.AvailabilityTestUtils.toLocalDateList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -43,6 +45,14 @@ class AvailabilityServiceTest {
         return mock(DatesValidator.class);
     }
 
+    @Inject
+    private RedisClient redisClient;
+
+    @BeforeEach
+    void setUp() {
+        // clean up all keys from embedded REDIS
+        redisClient.getRedisCommands().flushall();
+    }
 
     // tests use "valid" dates, dates validity are tested in DatesValidatorTest class
 
@@ -57,15 +67,14 @@ class AvailabilityServiceTest {
         LocalDate fromDate = LocalDate.now().plusDays(1);
         LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(1, 27));
 
-        List<OccupiedDate> occupiedDates = new ArrayList<>();
-        // There are no occupied dates in the DB
-        when(occupiedDateServiceMock.findAllBetweenDates(fromDate, toDate)).thenReturn(occupiedDates);
+        // There are no occupied dates in the DB (neither in Redis)
+        List<LocalDate> occupiedDates = new ArrayList<>();
 
         Map<LocalDate, String> availability = service.getAvailability(fromDate, toDate);
 
         // check the availability response for the given dates range
         // with all campsite dates vacant
-        assertAvailabilityForDatesRange(availability, toLocalDateList(occupiedDates), fromDate, toDate);
+        assertAvailabilityForDatesRange(availability, occupiedDates, fromDate, toDate);
 
         // asserts that dates where checked by datesValidatorMock
         verify(datesValidatorMock, times(1)).validateAvailabilityDates(fromDate, toDate);
@@ -79,19 +88,20 @@ class AvailabilityServiceTest {
         LocalDate fromDate = LocalDate.now().plusDays(1);
         LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(1, 27));
 
-        List<OccupiedDate> occupiedDates = new ArrayList<>();
+        List<LocalDate> occupiedDates = new ArrayList<>();
+        // There are occupied dates in the DB (all dates in the availability period)
+        // also in REDIS
         for (LocalDate date = fromDate; date.isBefore(toDate.plusDays(1)); date = date.plusDays(1)) {
-            occupiedDates.add(new OccupiedDate(date, UUID.randomUUID()));
+            occupiedDates.add(date);
+            redisClient.storeInCache(date, UUID.randomUUID());
         }
 
-        // There are occupied dates in the DB (all dates in the availability period
-        when(occupiedDateServiceMock.findAllBetweenDates(fromDate, toDate)).thenReturn(occupiedDates);
 
         Map<LocalDate, String> availability = service.getAvailability(fromDate, toDate);
 
         // check the availability response for the given dates range
         // with all campsite dates vacant
-        assertAvailabilityForDatesRange(availability, toLocalDateList(occupiedDates), fromDate, toDate);
+        assertAvailabilityForDatesRange(availability, occupiedDates, fromDate, toDate);
 
         // asserts that dates where checked by datesValidatorMock
         verify(datesValidatorMock, times(1)).validateAvailabilityDates(fromDate, toDate);
@@ -106,18 +116,18 @@ class AvailabilityServiceTest {
         LocalDate fromDate = LocalDate.now().plusDays(1);
         LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(1, 27));
 
-        List<OccupiedDate> occupiedDates = new ArrayList<>();
-        occupiedDates.add(new OccupiedDate(toDate, UUID.randomUUID()));
-        occupiedDates.add(new OccupiedDate(fromDate, UUID.randomUUID()));
-
-        // There are two occupied dates in the DB (all dates in the availability period
-        when(occupiedDateServiceMock.findAllBetweenDates(fromDate, toDate)).thenReturn(occupiedDates);
+        // There are occupied dates in the DB also in REDIS
+        List<LocalDate> occupiedDates = new ArrayList<>();
+        occupiedDates.add(toDate);
+        redisClient.storeInCache(toDate, UUID.randomUUID());
+        occupiedDates.add(fromDate);
+        redisClient.storeInCache(fromDate, UUID.randomUUID());
 
         Map<LocalDate, String> availability = service.getAvailability(fromDate, toDate);
 
         // check the availability response for the given dates range
         // with all campsite dates vacant
-        assertAvailabilityForDatesRange(availability, toLocalDateList(occupiedDates), fromDate, toDate);
+        assertAvailabilityForDatesRange(availability, occupiedDates, fromDate, toDate);
 
         // asserts that dates where checked by datesValidatorMock
         verify(datesValidatorMock, times(1)).validateAvailabilityDates(fromDate, toDate);
@@ -125,35 +135,35 @@ class AvailabilityServiceTest {
     }
 
 
-    /// buildAvailabilityReportMapTemplate() tests
+    /// buildAvailabilityReportMap() tests
     //////////////////////////////////
 
     @Test
-    void buildAvailabilityReportMapTemplateForOneDay() {
+    void buildAvailabilityReportMapForOneDay() {
         LocalDate fromDate = TODAY.plusDays(1);
         LocalDate toDate = fromDate;
         //border case one day (fromDate == toDate)
-        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMapTemplate(fromDate, toDate);
+        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMap(fromDate, toDate);
         assertTemplateMapForDates(templateMap, 1, fromDate, toDate);
     }
 
     @Test
-    void buildAvailabilityReportMapTemplateForOneMonth() {
+    void buildAvailabilityReportMapForOneMonth() {
         LocalDate fromDate = TODAY.plusDays(1);
         LocalDate toDate = TODAY.plusDays(30);
 
-        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMapTemplate(fromDate, toDate);
+        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMap(fromDate, toDate);
         assertTemplateMapForDates(templateMap, 30, fromDate, toDate);
     }
 
 
     @Test
-    void buildAvailabilityReportMapTemplateForInvalidDates() {
+    void buildAvailabilityReportMapForInvalidDates() {
         LocalDate fromDate = TODAY.plusDays(1);
         LocalDate toDate = fromDate.minusDays(10);
         //border case (fromDate is after toDate)
 
-        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMapTemplate(fromDate, toDate);
+        TreeMap<LocalDate, String> templateMap = service.buildAvailabilityReportMap(fromDate, toDate);
         assertEquals(0, templateMap.size(), "templateMap size must be zero for invalid dates: " + fromDate + " to: " + toDate);
     }
 
