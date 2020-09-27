@@ -59,18 +59,21 @@ class GetReservationControllerTest {
 
     @BeforeEach
     void setUp() {
-
+        occupiedDateRepository.deleteAll();
+        reservationRepository.deleteAll();
+        // starts with an empty DB to avoid false negative in tests
+        // (reservation dates are random)
     }
 
     @AfterEach
     void tearDown() {
-        // cleanup the DB for Next Test
+        // cleanup the DB for just in case for Next Tests
         occupiedDateRepository.deleteAll();
         reservationRepository.deleteAll();
     }
 
 
-    //TODO @Test
+    @Test
     void get() {
         ReservationRequest reservationRequest = ReservationTestUtils.getRandomReservation();
         Reservation entity = service.create(reservationRequest.getEmail(), reservationRequest.getFullname(),

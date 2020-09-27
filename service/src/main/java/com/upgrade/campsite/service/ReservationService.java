@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Singleton
-@Transactional
 public class ReservationService {
     private static final Logger LOG = LoggerFactory.getLogger(ReservationService.class);
 
@@ -35,13 +34,17 @@ public class ReservationService {
     @Inject
     private DatesValidator datesValidator;
 
-
+    // this method must handle the "parent" transaction
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public Reservation create(@NotNull @Email String email, @NotBlank String fullname,
                               @NotNull LocalDate arrival, @NotNull LocalDate departure) {
 
         datesValidator.validateReservationDates(arrival, departure);
+        LOG.debug("creating reservation for dates [arrival: {} - departure: {}]", arrival, departure);
         //and check if dates are available
         checkVacanciesForDates(arrival, departure);
+
+        LOG.debug("dates are vacant [arrival: {} - departure: {}]", arrival, departure);
 
         Reservation entity = new Reservation();
         UUID reservationId = UUID.randomUUID();
@@ -50,15 +53,27 @@ public class ReservationService {
         entity.setFullname(fullname);
         entity.setArrivalDate(arrival);
         entity.setDepartureDate(departure);
+        repository.save(entity);
 
-        return saveReservationAndOccupiedDates(entity);
+        saveOccupiedDates(entity);
+        return entity;
     }
 
 
     public Optional<Reservation> findByID(@NotNull UUID id) {
+        LOG.debug("finding reservation by id: {}", id);
         return repository.findById(id);
     }
 
+    // this method must handle the "parent" transaction
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void delete(@NotNull UUID id) {
+        occupiedDateService.deleteAllForReservationID(id);
+        repository.deleteById(id);
+    }
+
+    // this method must handle the "parent" transaction
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public Optional<Reservation> update(@NotNull UUID id, @NotNull @Email String newEmail, @NotBlank String newFullname,
                                         @NotNull LocalDate newArrival, @NotNull LocalDate newDeparture) {
 
@@ -75,18 +90,17 @@ public class ReservationService {
         if (!entity.getArrivalDate().equals(newArrival) || !entity.getDepartureDate().equals(newDeparture)) {
             updateDates(entity, newArrival, newDeparture);
         }
-
-        return Optional.of(saveReservationAndOccupiedDates(entity));
+        repository.update(entity);
+        saveOccupiedDates(entity);
+        return Optional.of(entity);
     }
 
     // This method trx must be attached to parent trx
     // so rollback will rollback parent too
     @Transactional(Transactional.TxType.MANDATORY)
-    private Reservation saveReservationAndOccupiedDates(Reservation entity) {
-        repository.save(entity);
+    private void saveOccupiedDates(Reservation entity) {
         List<LocalDate> reservationDates = createDatesBetweenList(entity.getArrivalDate(), entity.getDepartureDate());
         occupiedDateService.saveAll(entity.getId(), reservationDates);
-        return entity;
     }
 
     // This method trx must be attached to parent trx
@@ -103,12 +117,6 @@ public class ReservationService {
         checkVacanciesForDates(newArrival, newDeparture);
         entity.setArrivalDate(newArrival);
         entity.setDepartureDate(newDeparture);
-    }
-
-
-    public void delete(@NotNull UUID id) {
-        occupiedDateService.deleteAllForReservationID(id);
-        repository.deleteById(id);
     }
 
 

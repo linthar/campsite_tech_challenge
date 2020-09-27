@@ -14,8 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import static javax.transaction.Transactional.TxType.MANDATORY;
-import static javax.transaction.Transactional.TxType.REQUIRED;
+import static javax.transaction.Transactional.TxType.*;
 
 @Singleton
 @Transactional
@@ -40,12 +39,11 @@ public class OccupiedDateService {
     }
 
 
-
-
     // must be attached to save reservation transaction in order to keep consistent the DB
     // so rollback will rollback parent too
     @Transactional(MANDATORY)
     public void saveAll(UUID reservationId, List<LocalDate> dates) {
+        LOG.debug("setting dates as occupied: {}", dates);
         for (LocalDate d : dates) {
             repository.save(new OccupiedDate(d, reservationId));
         }
@@ -55,18 +53,21 @@ public class OccupiedDateService {
     // so rollback will rollback parent too
     @Transactional(MANDATORY)
     public void deleteAllForReservationID(UUID reservationId) {
+        LOG.debug("deleting all OccupiedDates for reservation id: {}", reservationId);
         repository.deleteByReservationID(reservationId);
     }
 
+
+    ////////// methods needed for tests clases
 //TODO Fix this in tests
-    @Transactional(REQUIRED)
+    @Transactional(REQUIRES_NEW)
     // this method was made to be called from tests classes
     // deleteAllForReservationID requires a Transaction to be attached
     public void deleteAllForReservationIDOpenTransaction(UUID reservationId) {
         this.deleteAllForReservationID(reservationId);
     }
 //TODO Fix this in tests
-    @Transactional(REQUIRED)
+    @Transactional(REQUIRES_NEW)
     // this method was made to be called from tests classes
     // saveAll requires a Transaction to be attached
     public void saveAllOpenTransaction(UUID reservationId, List<LocalDate> dates) {

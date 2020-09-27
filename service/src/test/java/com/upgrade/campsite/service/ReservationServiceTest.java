@@ -168,7 +168,7 @@ class ReservationServiceTest {
         assertEquals(arrivalDate, updatedReservation.getArrivalDate());
         assertEquals(departureDate, updatedReservation.getDepartureDate());
 
-        verify(repositoryMock, times(1)).save(updatedReservation);
+        verify(repositoryMock, times(1)).update(updatedReservation);
     }
 
     @Test
@@ -229,7 +229,7 @@ class ReservationServiceTest {
         assertEquals(newArrivalDate, updatedReservation.getArrivalDate());
         assertEquals(newDepartureDate, updatedReservation.getDepartureDate());
 
-        verify(repositoryMock, times(1)).save(updatedReservation);
+        verify(repositoryMock, times(1)).update(updatedReservation);
 
         // dates must be verified and valid
         verify(datesValidatorMock, times(1)).validateReservationDates(newArrivalDate, newDepartureDate);

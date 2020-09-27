@@ -59,18 +59,21 @@ class UpdateReservationControllerTest {
 
     @BeforeEach
     void setUp() {
-
+        occupiedDateRepository.deleteAll();
+        reservationRepository.deleteAll();
+        // starts with an empty DB to avoid false negative in tests
+        // (reservation dates are random)
     }
 
     @AfterEach
     void tearDown() {
-        // cleanup the DB for Next Test
+        // cleanup the DB for just in case for Next Tests
         occupiedDateRepository.deleteAll();
         reservationRepository.deleteAll();
     }
 
 
-    //TODO @Test
+    @Test
     void update() {
 
         ReservationRequest reservationRequest = ReservationTestUtils.getRandomReservation();
@@ -78,7 +81,9 @@ class UpdateReservationControllerTest {
                 reservationRequest.getArrivalDate(), reservationRequest.getDepartureDate());
 
         // asserts entity was stored in DB
-        assertTrue(service.findByID(entity.getId()).isPresent());
+        Optional<Reservation> inDB = service.findByID(entity.getId());
+        assertTrue(inDB.isPresent());
+        assertEquals(entity.getId(), inDB.get().getId());
 
 
         ReservationRequest updateReservation = ReservationTestUtils.getRandomReservation();
