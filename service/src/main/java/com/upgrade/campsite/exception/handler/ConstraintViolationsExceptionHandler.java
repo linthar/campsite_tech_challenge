@@ -34,12 +34,8 @@ public class ConstraintViolationsExceptionHandler implements ExceptionHandler<Co
         Map<String, List<String>> result = new HashMap<>();
 
         exception.getConstraintViolations().forEach(constraintViolation -> {
-            final String jsonPath = getJSONPath(constraintViolation.getPropertyPath());
-            if (result.containsKey(jsonPath)) {
-                result.get(jsonPath).add(constraintViolation.getMessage());
-            } else {
-                result.put(jsonPath, Collections.singletonList(constraintViolation.getMessage()));
-            }
+            String jsonPath = getJSONPath(constraintViolation.getPropertyPath());
+            result.put(jsonPath, Collections.singletonList(constraintViolation.getMessage()));
         });
         return result;
     }

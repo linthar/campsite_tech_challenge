@@ -14,6 +14,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.uri.UriBuilder;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterEach;
@@ -24,7 +25,9 @@ import javax.inject.Inject;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -72,10 +75,9 @@ class PostReservationControllerTest {
 
     @Test
     void create() {
-        // uri = http://[HOST:PORT]]/reservation
-        URI uri = UriBuilder.of(ENDPOINT_URL).build();
         ReservationRequest reservationRequest = ReservationTestUtils.getRandomReservation();
-        MutableHttpRequest request = HttpRequest.POST(uri, reservationRequest);
+        // uri = http://[HOST:PORT]]/reservation
+        MutableHttpRequest request = HttpRequest.POST(ENDPOINT_URL, reservationRequest);
         HttpResponse<Reservation> httpResponse = client.toBlocking().exchange(request, Reservation.class);
 
         assertEquals(HttpStatus.OK, httpResponse.getStatus(), "response status is wrong");
@@ -120,8 +122,56 @@ class PostReservationControllerTest {
         for (LocalDate date = arrivalDate; date.isBefore(departureDate.plusDays(1)); date = date.plusDays(1)) {
             assertTrue(occupiedDateRepository.existsById(date));
         }
+    }
 
 
+
+
+    @Test
+    void postAllFieldsEmpty() {
+        ReservationRequest reservationRequest = new ReservationRequest();
+        inner_invalidRequestBodyRequest(reservationRequest);
+    }
+
+
+    @Test
+    void postEmptyEmail() {
+        ReservationRequest reservationRequest = ReservationTestUtils.getRandomReservation();
+        reservationRequest.setEmail(null);
+        inner_invalidRequestBodyRequest(reservationRequest);
+    }
+
+    @Test
+    void postEmptyFullname() {
+        ReservationRequest reservationRequest = ReservationTestUtils.getRandomReservation();
+        reservationRequest.setFullname(null);
+        inner_invalidRequestBodyRequest(reservationRequest);
+    }
+
+    @Test
+    void postEmptyArrivalDate() {
+        ReservationRequest reservationRequest = ReservationTestUtils.getRandomReservation();
+        reservationRequest.setArrivalDate(null);
+        inner_invalidRequestBodyRequest(reservationRequest);
+    }
+
+    @Test
+    void postEmptyDepartureDate() {
+        ReservationRequest reservationRequest = ReservationTestUtils.getRandomReservation();
+        reservationRequest.setDepartureDate(null);
+        inner_invalidRequestBodyRequest(reservationRequest);
+    }
+
+    private void inner_invalidRequestBodyRequest(ReservationRequest reservationRequest) {
+        try {
+            // uri = http://[HOST:PORT]]/reservation
+            MutableHttpRequest request = HttpRequest.POST(ENDPOINT_URL, reservationRequest);
+            HttpResponse<Reservation> httpResponse = client.toBlocking().exchange(request, Reservation.class);
+            fail("HttpStatus should be 400. Body must be provided");
+        } catch (HttpClientResponseException e) {
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatus(), "response status is wrong");
+            assertEquals("Request Body is invalid", e.getMessage());
+        }
     }
 
 }
