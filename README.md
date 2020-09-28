@@ -19,11 +19,11 @@ Requeriments
 # Service Execution
 
 ## Docker servers setup
- First you have to start a MySQL Docker image in you host, to do that, execute:
- this script starts a new MySQL instance on localhost:30306 with admin user/pass: root/root_pass  and a REDIS server in localhost:6379
+ First you have execute:
 ```
 ./setup.sh
 ```
+ This script starts a new MySQL instance on localhost:30306 with admin user/pass: root/root_pass  and a REDIS server in localhost:6379
 
 
 #### MySQL start/stop
