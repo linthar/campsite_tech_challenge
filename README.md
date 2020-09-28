@@ -64,6 +64,15 @@ curl -I -s -L 'http://0.0.0.0:8080/health' | grep "HTTP/1.1"
 http://localhost:8080/swagger/views/swagger-ui/
 
 
+## Running the stress test
+
+````
+./k6_tests/stress_test.sh 
+````
+This script starts a K6 test that get the availability report from localhost:8080.
+Uses up to 100 "Virtual Users" concurrently and continually hitting the API.
+
+
 
 
 

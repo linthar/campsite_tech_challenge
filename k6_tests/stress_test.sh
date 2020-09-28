@@ -2,6 +2,9 @@
 ##################################
 export BASE_URL="http://localhost:8080/"
 
+CURRENT_PATH=`dirname $0`
+cd $CURRENT_PATH
+
 
 # if you want to run a specific test
 # must be sent as parameter 1
