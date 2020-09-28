@@ -49,6 +49,7 @@ docker stop redisCampsite
 ````
 ./run.sh
 ````
+Campsite service should be available at port 8080
 
 ### API check 
 
