@@ -57,6 +57,11 @@ If the service started ok, this curl must return HTTP 200
 ````
 curl -I -s -L 'http://0.0.0.0:8080/availability' | grep "HTTP/1.1"
 ````
+expected result is:
+    
+````
+HTTP/1.1 200 OK
+````
 
 
 ### SWAGGER doc:
