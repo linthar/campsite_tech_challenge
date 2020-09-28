@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -80,6 +80,7 @@ class ConcurrentCreateReservationServiceConstraintsTest extends AbstractRestCont
         Map<LocalDate, String> availabilityReportBefore = availabilityService.getAvailability(dateToCompite.minusDays(3), dateToCompite.plusDays(3));
 
         // all dates must be free before the test
+        // (checking from 3 days before to 3 days after the dateToCompite)
         for (String value : availabilityReportBefore.values()) {
             assertEquals(AvailabilityService.NOT_OCCUPIED_DATE, value);
         }
@@ -106,8 +107,6 @@ class ConcurrentCreateReservationServiceConstraintsTest extends AbstractRestCont
 
         latch.await();
 
-        assertEquals(numberOfThreads - 1, failuresMap.size(), "threads that must fail (only one should success)");
-
         // success registration check
         ReservationRequest succeededReservation = reservationList.get(successIndexHolder[0]);
         assertNotNull(succeededReservation);
@@ -115,10 +114,10 @@ class ConcurrentCreateReservationServiceConstraintsTest extends AbstractRestCont
 
 
         // all dates must be free except those from succeeded Reservation
+        // (checking from 3 days before to 3 days after the dateToCompite)
         List<LocalDate> succeededDates = Stream.iterate(succeededReservation.getArrivalDate(), date -> date.plusDays(1))
                 .limit(ChronoUnit.DAYS.between(succeededReservation.getArrivalDate(), succeededReservation.getDepartureDate()) + 1)
                 .collect(Collectors.toList());
-
 
         for (Map.Entry<LocalDate, String> entry : availabilityReport.entrySet()) {
             if (succeededDates.contains(entry.getKey())) {

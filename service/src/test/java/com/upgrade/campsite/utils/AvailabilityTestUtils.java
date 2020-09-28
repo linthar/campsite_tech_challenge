@@ -1,7 +1,5 @@
 package com.upgrade.campsite.utils;
 
-import com.upgrade.campsite.model.OccupiedDate;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;

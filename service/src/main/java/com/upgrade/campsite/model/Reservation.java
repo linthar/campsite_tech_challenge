@@ -8,7 +8,6 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.UUID;

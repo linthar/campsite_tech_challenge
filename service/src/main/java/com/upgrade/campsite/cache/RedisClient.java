@@ -12,7 +12,6 @@ import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Singleton

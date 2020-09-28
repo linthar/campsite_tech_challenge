@@ -8,8 +8,6 @@ import com.upgrade.campsite.service.OccupiedDateService;
 import com.upgrade.campsite.service.ReservationService;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 import javax.inject.Inject;
 

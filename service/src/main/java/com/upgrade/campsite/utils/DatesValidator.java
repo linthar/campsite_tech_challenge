@@ -1,7 +1,6 @@
 package com.upgrade.campsite.utils;
 
 import com.upgrade.campsite.exception.ServiceException;
-import com.upgrade.campsite.service.AvailabilityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

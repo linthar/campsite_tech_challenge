@@ -1,26 +1,18 @@
 package com.upgrade.campsite.rest;
 
-import com.upgrade.campsite.rest.dto.ReservationRequest;
 import com.upgrade.campsite.model.Reservation;
-import com.upgrade.campsite.repository.OccupiedDateRepository;
-import com.upgrade.campsite.repository.ReservationRepository;
-import com.upgrade.campsite.service.AvailabilityService;
-import com.upgrade.campsite.service.OccupiedDateService;
-import com.upgrade.campsite.service.ReservationService;
+import com.upgrade.campsite.rest.dto.ReservationRequest;
 import com.upgrade.campsite.utils.ReservationTestUtils;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MutableHttpRequest;
-import io.micronaut.http.client.RxHttpClient;
-import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.uri.UriBuilder;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.UUID;

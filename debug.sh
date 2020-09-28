@@ -13,8 +13,7 @@ export REDIS_URI=redis://localhost
 
 if [ "$1" != "--fast" ]; then
     echo "--- REBUILD --- "
-    rm ./service/build/libs/service*.jar
-    # force cleanup
+    # forces a clean build just in case
     ./gradlew service:clean build
 fi
 

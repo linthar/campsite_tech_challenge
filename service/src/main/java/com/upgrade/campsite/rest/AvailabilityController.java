@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 @Controller("/availability")
 @Validated

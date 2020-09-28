@@ -3,7 +3,6 @@ package com.upgrade.campsite.service;
 import com.upgrade.campsite.cache.RedisClient;
 import com.upgrade.campsite.utils.AvailavilityConstants;
 import com.upgrade.campsite.utils.DatesValidator;
-import io.micronaut.cache.$AsyncCacheErrorHandlerDefinitionClass;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
 import org.junit.jupiter.api.BeforeEach;

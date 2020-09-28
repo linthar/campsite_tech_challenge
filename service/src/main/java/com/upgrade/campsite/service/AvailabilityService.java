@@ -23,9 +23,6 @@ public class AvailabilityService {
     public static final String NOT_OCCUPIED_DATE = "vacant";
 
     @Inject
-    private OccupiedDateService occupiedDateService;
-
-    @Inject
     private DatesValidator datesValidator;
 
     @Inject
@@ -89,8 +86,8 @@ public class AvailabilityService {
     /**
      * Checks if the Campsite is available for the given dates period (inclusive)
      *
-     * @param fromDate   first date to check availability
-     * @param toDate last date to check availability
+     * @param fromDate first date to check availability
+     * @param toDate   last date to check availability
      * @return true if all dates between newArrival and newDeparture are vacant
      */
     public boolean isAvailableBetweenDates(@NotNull LocalDate fromDate, @NotNull LocalDate toDate) {

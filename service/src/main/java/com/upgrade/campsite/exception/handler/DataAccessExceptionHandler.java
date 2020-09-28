@@ -1,6 +1,5 @@
 package com.upgrade.campsite.exception.handler;
 
-import com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.data.exceptions.DataAccessException;
 import io.micronaut.http.HttpRequest;
