@@ -82,6 +82,13 @@ Uses up to 100 "Virtual Users" concurrently and continually hitting the API.
 
 # Design
 
+
+The trade-off is to penalty reservations/cancellations/updates operations in order to improve availability check operation response times.
+
+All availability checks are done hitting REDIS cache.
+
+DB is used as last-line constraints keeper. Concurrent requests checks could fail in that case, so the DB constraints ensures consistency.
+
 ## Development
 ![Development](docs/Develop.jpeg)
 
