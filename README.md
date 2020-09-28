@@ -1,22 +1,24 @@
 # campsite_tech_challenge
 
-see /docs for specifications
+# Campsite
+- [Docs](docs/): see /docs/ for specifications
+- [Demo](docs/demo.mp4): Api Demo video
 
-Requeriments
+
+
+#### Requeriments
 
 - docker
 - jdk 11
 - K6: To run stress tests (https://k6.io/)  (https://k6.io/docs/getting-started/installation) 
 
-# Test Coverage Report
+# API Implementation
+
+## Test Coverage Report
 ````
 ./test.sh 
 ````
 
-
-
-
-# Service Execution
 
 ## Docker servers setup
  First you have execute:
@@ -53,7 +55,7 @@ Campsite service should be available at port 8080
 
 ### API check 
 
-If the service started ok, this curl must return HTTP 200
+This curl must return HTTP 200 if the service has started ok.
 
 ````
 curl -I -s -L 'http://0.0.0.0:8080/availability' | grep "HTTP/1.1"
@@ -83,15 +85,18 @@ Uses up to 100 "Virtual Users" concurrently and continually hitting the API.
 # Design
 
 
-The trade-off is to penalty reservations/cancellations/updates operations in order to improve availability check operation response times.
+The trade-off is to penalizing reservations/cancellations/updates operations in order to improve availability check operation response times. (availability DB data is cached in REDIS, so every INSERT/UPDATE/DELETE has to  some extra effort in order to maintain the cache consistent)
 
-All availability checks are done hitting REDIS cache.
+All availability services hits REDIS cache exclusively.  Report and Reservations vacancy checks are done using REDIS data to speed-up the response.
 
 DB is used as last-line constraints keeper. Concurrent requests checks could fail in that case, so the DB constraints ensures consistency.
 
-## Development
+### Scalability
+
+This is an example of how this solution can be scaled:
+#### Development
 ![Development](docs/Develop.jpeg)
 
-## Production
+#### Production
 ![Production](docs/Prod.jpeg)
 
