@@ -6,6 +6,7 @@ Requeriments
 
 - docker
 - jdk 11
+- K6: To run stress tests (https://k6.io/)  (https://k6.io/docs/getting-started/installation) 
 
 # Test Coverage Report
 
