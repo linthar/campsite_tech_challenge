@@ -11,7 +11,6 @@ micronaut:
   security:
     enabled: false
 
-
   router:
     static-resources:
       swagger:
@@ -22,12 +21,6 @@ endpoints:
   health:
     enabled: true
     sensitive: false
-    jdbc:
-      enabled: true
-    disk-space:
-      enabled: false
-    discovery-client:
-      enabled: false
     details-visible: ANONYMOUS
 
 jackson:

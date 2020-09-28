@@ -55,7 +55,7 @@ docker stop redisCampsite
 If the service started ok, this curl must return HTTP 200
 
 ````
-curl -I -s -L 'http://0.0.0.0:8080/health' | grep "HTTP/1.1"
+curl -I -s -L 'http://0.0.0.0:8080/availability' | grep "HTTP/1.1"
 ````
 
 
