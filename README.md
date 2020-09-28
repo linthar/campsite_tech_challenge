@@ -9,9 +9,8 @@ Requeriments
 - K6: To run stress tests (https://k6.io/)  (https://k6.io/docs/getting-started/installation) 
 
 # Test Coverage Report
-
 ````
-./test.sh
+./test.sh 
 ````
 
 
@@ -19,9 +18,9 @@ Requeriments
 
 # Service Execution
 
-## MySQL setup
+## Docker servers setup
  First you have to start a MySQL Docker image in you host, to do that, execute:
- this command starts a new MySQL instance on localhost:30306 with admin user/pass: root/root_pass
+ this script starts a new MySQL instance on localhost:30306 with admin user/pass: root/root_pass  and a REDIS server in localhost:6379
 ```
 ./setup.sh
 ```
