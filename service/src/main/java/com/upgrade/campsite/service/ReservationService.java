@@ -48,7 +48,11 @@ public class ReservationService {
         datesValidator.validateReservationDates(arrival, departure);
         LOG.debug("creating reservation for dates [arrival: {} - departure: {}]", arrival, departure);
         //and check if dates are available
-        checkVacanciesForDates(arrival, departure);
+
+        // verifies that all dates between the given dates (inclusive) are FREE (NOT OCCUPIED)
+        if (!availabilityService.isAvailableBetweenDates(arrival, departure)) {
+            throw new ServiceException("provided dates period is no free, check please check availability for details");
+        }
 
         LOG.debug("dates are vacant [arrival: {} - departure: {}]", arrival, departure);
 
@@ -119,7 +123,12 @@ public class ReservationService {
         // because will fail for existAnyBetweenDates check... but could be same reservation that should be
         occupiedDateService.deleteAllForReservationID(entity.getId());
         //and check if dates are available
-        checkVacanciesForDates(newArrival, newDeparture);
+
+        // verifies that all dates between the given dates (inclusive) are FREE (NOT OCCUPIED)
+        if (!availabilityService.isAvailableForUpdateBetweenDates(entity.getId(), newArrival, newDeparture)) {
+            throw new ServiceException("provided dates period is no free, check please check availability for details");
+        }
+
         entity.setArrivalDate(newArrival);
         entity.setDepartureDate(newDeparture);
     }
@@ -141,16 +150,9 @@ public class ReservationService {
         return dates;
     }
 
-    /**
-     * verifies that all dates between the given dates (inclusive) are FREE (NOT OCCUPIED)
-     *
-     * @param fromDate first date to check
-     * @param toDate   last date to check
-     */
-    protected void checkVacanciesForDates(LocalDate fromDate, LocalDate toDate) {
-        if (!availabilityService.isAvailableBetweenDates(fromDate, toDate)) {
-            throw new ServiceException("provided dates period is no free, check please check availability for details");
-        }
-    }
+
+
+
+
 
 }

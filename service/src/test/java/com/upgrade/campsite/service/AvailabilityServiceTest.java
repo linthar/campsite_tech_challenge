@@ -234,4 +234,94 @@ class AvailabilityServiceTest {
 
 
 
+
+
+    @Test
+    void isAvailableForUpdateBetweenDatesWhenNoOccupiedDatesI() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // there are no occupied dates in REDIS
+        assertTrue(service.isAvailableForUpdateBetweenDates(UUID.randomUUID(), fromDate, toDate));
+    }
+
+    @Test
+    void isAvailableForUpdateBetweenDatesOneDateBeginning() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // one of the date (at the Beginning of the period) are marked as occupied in REDIS
+        redisClient.storeInCache(fromDate, UUID.randomUUID());
+
+        assertFalse(service.isAvailableForUpdateBetweenDates(UUID.randomUUID(), fromDate, toDate));
+    }
+
+    @Test
+    void isAvailableForUpdateBetweenDatesOneDateMiddle() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // one of the date (in the Middle of the period) are marked as occupied in REDIS
+        redisClient.storeInCache(fromDate.plusDays(1), UUID.randomUUID());
+
+        assertFalse(service.isAvailableForUpdateBetweenDates(UUID.randomUUID(), fromDate, toDate));
+    }
+
+    @Test
+    void isAvailableForUpdateBetweenDatesOneDateEnd() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // one of the date (in the End of the period) are marked as occupied in REDIS
+        redisClient.storeInCache(toDate, UUID.randomUUID());
+
+        assertFalse(service.isAvailableForUpdateBetweenDates(UUID.randomUUID(), fromDate, toDate));
+    }
+
+
+    @Test
+    void isAvailableForUpdateBetweenDatesOutside() {
+
+        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+        LocalDate toDate = fromDate.plusDays(2);
+
+        // there are dates marked as occupied in REDIS
+        // but outside the period (Before or/and After)
+        redisClient.storeInCache(fromDate.minusDays(1), UUID.randomUUID());
+        redisClient.storeInCache(toDate.plusDays(1), UUID.randomUUID());
+
+        assertTrue(service.isAvailableForUpdateBetweenDates(UUID.randomUUID(), fromDate, toDate));
+    }
+
+
+    @Test
+    void isAvailableForUpdateWhenNewAndOldPeriodCollides() {
+        //   e.g.:  if  reservationId dates =  [1,2,3]
+        //   and we want to update the Reservation for dates  =  [2,3,4]
+        //  if date 4 is free, the Update operation must success because dates 2 and 3 where taken for the same campers
+        //  (dates 2 and 3 are taken for the same reservation and It's ok )
+        UUID reservationId = UUID.randomUUID();
+
+        // there are dates marked as occupied in REDIS
+        // but belong to the same reservationId (that are trying update, moving one day forward)
+        redisClient.storeInCache(TODAY.plusDays(1), reservationId);
+        redisClient.storeInCache(TODAY.plusDays(2), reservationId);
+        redisClient.storeInCache(TODAY.plusDays(3), reservationId);
+
+        LocalDate fromDate = TODAY.plusDays(2);
+        LocalDate toDate = TODAY.plusDays(4);
+
+        // move operation must be legal
+        assertTrue(service.isAvailableForUpdateBetweenDates(reservationId, fromDate, toDate));
+    }
+
+
+
+
+
+
 }

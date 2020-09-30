@@ -223,7 +223,7 @@ class ReservationServiceTest {
         when(repositoryMock.findById(id)).thenReturn(Optional.of(found));
 
         // asserts that dates where NO Occupied Dates in the requested period (ALL DATES ARE FREE)
-        when(availabilityServiceMock.isAvailableBetweenDates(newArrivalDate, newDepartureDate)).thenReturn(true);
+        when(availabilityServiceMock.isAvailableForUpdateBetweenDates(id, newArrivalDate, newDepartureDate)).thenReturn(true);
 
         // dates have changed .. must change OccupiedDates also
         // and there new dates period is vacant
@@ -305,30 +305,30 @@ class ReservationServiceTest {
         }
     }
 
-
-    @Test
-    void checkVacanciesForDatesOk() {
-        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
-        LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(0, 2));
-        // all dates are vacant in the period
-
-        when(availabilityServiceMock.isAvailableBetweenDates(fromDate, toDate)).thenReturn(true);
-
-        service.checkVacanciesForDates(fromDate, toDate);
-    }
-
-    @Test
-    void checkVacanciesForDatesWhenNoVacancy() {
-        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
-        LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(0, 2));
-        // there are some taken dates in the period
-        when(availabilityServiceMock.isAvailableBetweenDates(fromDate, toDate)).thenReturn(false);
-
-        try {
-            service.checkVacanciesForDates(fromDate, toDate);
-        } catch (ServiceException e) {
-            assertEquals("provided dates period is no free, check please check availability for details", e.getMessage());
-        }
-    }
+//
+//    @Test
+//    void checkVacanciesForDatesOk() {
+//        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+//        LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(0, 2));
+//        // all dates are vacant in the period
+//
+//        when(availabilityServiceMock.isAvailableBetweenDates(fromDate, toDate)).thenReturn(true);
+//
+//        service.checkVacanciesForDates(fromDate, toDate);
+//    }
+//
+//    @Test
+//    void checkVacanciesForDatesWhenNoVacancy() {
+//        LocalDate fromDate = TODAY.plusDays(RANDOM.nextInt(1, 10));
+//        LocalDate toDate = fromDate.plusDays(RANDOM.nextInt(0, 2));
+//        // there are some taken dates in the period
+//        when(availabilityServiceMock.isAvailableBetweenDates(fromDate, toDate)).thenReturn(false);
+//
+//        try {
+//            service.checkVacanciesForDates(fromDate, toDate);
+//        } catch (ServiceException e) {
+//            assertEquals("provided dates period is no free, check please check availability for details", e.getMessage());
+//        }
+//    }
 
 }

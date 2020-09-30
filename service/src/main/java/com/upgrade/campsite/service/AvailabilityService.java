@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 @Singleton
 @Validated
@@ -101,4 +102,47 @@ public class AvailabilityService {
 
         return true;
     }
+
+
+
+
+    /**
+     * Checks if the Campsite is available for the given dates period (inclusive)
+     * this method was done exclusively for Update operation, so the check for free will exclude the taken dates for the same reservationId
+     *
+     * @param reservationId the reservation to check if date can be moved
+     * @param fromDate first date to check availability
+     * @param toDate   last date to check availability
+     * @return true if all dates between newArrival and newDeparture are vacant for the reservationId
+     */
+    public boolean isAvailableForUpdateBetweenDates(@NotNull UUID reservationId, @NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
+
+        //   e.g.:  if  reservationId dates =  [1,2,3]
+        //   and we want to update the Reservation for dates  =  [2,3,4]
+        //  if date 4 is free, the Update operation must success because dates 2 and 3 where taken for the same campers
+        //  (dates 2 and 3 are taken for the same reservation and It's ok )
+
+        LocalDate loopLimit = toDate.plusDays(1);
+        String reservationIdStr = reservationId.toString();
+
+        for (LocalDate date = fromDate; date.isBefore(loopLimit); date = date.plusDays(1)) {
+            String takenForReservation = redisClient.getFromCache(date);
+            // if the date is taken for other reservation there are no vacancies for the reservation
+            if ( takenForReservation != null && !takenForReservation.equals(reservationIdStr)) {
+                //at least one day in the requested period is taken
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
+
+
+
+
+
+
 }
